@@ -7,13 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Smartphone, Trash2 } from "lucide-react";
+import { Plus, Smartphone, Trash2, Lock, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { usePremium } from "@/contexts/PremiumContext";
+import { PremiumBadge } from "@/components/premium/PremiumGate";
+import { Link } from "react-router-dom";
 
 const Apps = () => {
   const { selectedId } = useSelectedChild();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium, openUpgrade } = usePremium();
   const [items, setItems] = useState<any[]>([]);
   const [appName, setAppName] = useState("");
   const [adding, setAdding] = useState(false);
@@ -52,10 +56,39 @@ const Apps = () => {
 
   return (
     <div className="p-6 lg:p-10 space-y-6 animate-fade-in">
-      <header>
-        <h1 className="font-display text-3xl font-bold">App limits</h1>
-        <p className="text-muted-foreground mt-1">Set daily time or block apps entirely.</p>
+      <header className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="font-display text-3xl font-bold">App limits</h1>
+          <p className="text-muted-foreground mt-1">Set daily time or block apps entirely.</p>
+        </div>
+        <Button asChild variant="outline" size="sm">
+          <Link to={`/child/${selectedId}`} target="_blank">
+            <Smartphone className="h-4 w-4 mr-2" /> Preview as child
+          </Link>
+        </Button>
       </header>
+
+      <div className={`ge-card p-4 flex items-start sm:items-center gap-3 ${isPremium ? "border-accent/40 bg-accent/5" : ""}`}>
+        <div className={`h-10 w-10 rounded-xl grid place-items-center shrink-0 ${isPremium ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground"}`}>
+          {isPremium ? <ShieldAlert className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium">Auto-lock when daily limit is reached</span>
+            {!isPremium && <PremiumBadge />}
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isPremium
+              ? "Active — apps are automatically blocked on the child's device the moment their limit is hit."
+              : "Today, time-up only sends an alert. Upgrade to Premium to enforce automatic blocking on the device."}
+          </p>
+        </div>
+        {!isPremium && (
+          <Button size="sm" variant="outline" onClick={() => openUpgrade("automatic app locking")}>
+            Unlock
+          </Button>
+        )}
+      </div>
 
       <form onSubmit={add} className="ge-card p-4 flex gap-2 items-end">
         <div className="flex-1">
