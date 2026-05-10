@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ChevronDown, User } from "lucide-react";
+import { Plus, ChevronDown, User, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSelectedChild } from "@/contexts/SelectedChildContext";
+import { usePremium } from "@/contexts/PremiumContext";
+import { PremiumBadge } from "@/components/premium/PremiumGate";
 import type { Child } from "@/hooks/useChildren";
 
 export const ChildSwitcher = ({ children, onChildrenChange }: { children: Child[]; onChildrenChange: () => void }) => {
   const { selectedId, setSelectedId } = useSelectedChild();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium, openUpgrade } = usePremium();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [year, setYear] = useState("");
@@ -65,8 +68,19 @@ export const ChildSwitcher = ({ children, onChildrenChange }: { children: Child[
             </DropdownMenuItem>
           ))}
           {children.length > 0 && <DropdownMenuSeparator />}
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add child
+          <DropdownMenuItem
+            onClick={(e) => {
+              if (!isPremium && children.length >= 1) {
+                e.preventDefault();
+                openUpgrade("unlimited children");
+                return;
+              }
+              setOpen(true);
+            }}
+          >
+            {!isPremium && children.length >= 1 ? <Lock className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+            Add child
+            {!isPremium && children.length >= 1 && <PremiumBadge className="ml-auto" />}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

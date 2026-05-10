@@ -5,9 +5,11 @@ import { useSelectedChild } from "@/contexts/SelectedChildContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Globe, Plus, Trash2 } from "lucide-react";
+import { Globe, Plus, Trash2, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyChildPrompt } from "./Apps";
+import { usePremium } from "@/contexts/PremiumContext";
+import { PremiumBadge } from "@/components/premium/PremiumGate";
 
 const presets = ["adult", "gambling", "violence", "drugs"];
 
@@ -15,6 +17,7 @@ const Web = () => {
   const { selectedId } = useSelectedChild();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium, openUpgrade } = usePremium();
   const [items, setItems] = useState<any[]>([]);
   const [domain, setDomain] = useState("");
 
@@ -34,6 +37,7 @@ const Web = () => {
   };
 
   const addCategory = async (cat: string) => {
+    if (!isPremium) return openUpgrade("category-based web filtering");
     if (!user || !selectedId) return;
     await supabase.from("web_blocklist").insert({ parent_id: user.id, child_id: selectedId, domain: `*.${cat}`, category: cat });
     load();
@@ -51,10 +55,20 @@ const Web = () => {
       </header>
 
       <div className="ge-card p-5">
-        <Label className="mb-2 block">Quick categories</Label>
+        <div className="flex items-center gap-2 mb-2">
+          <Label>Quick categories</Label>
+          {!isPremium && <PremiumBadge />}
+        </div>
         <div className="flex flex-wrap gap-2">
           {presets.map((p) => (
-            <Button key={p} variant="outline" size="sm" onClick={() => addCategory(p)} className="capitalize">
+            <Button
+              key={p}
+              variant="outline"
+              size="sm"
+              onClick={() => addCategory(p)}
+              className={`capitalize ${!isPremium ? "opacity-70" : ""}`}
+            >
+              {!isPremium && <Lock className="h-3 w-3 mr-1" />}
               + {p}
             </Button>
           ))}
