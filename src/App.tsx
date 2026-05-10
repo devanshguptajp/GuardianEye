@@ -40,6 +40,7 @@ const App = () => (
                   <Route path="/" element={<Landing />} />
                   <Route path="/install" element={<Install />} />
                   <Route path="/auth" element={<RedirectIfAuthed><Auth /></RedirectIfAuthed>} />
+                  <Route path="/child/:childId" element={<RequireAuth><ChildView /></RequireAuth>} />
                   <Route path="/app" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
                     <Route index element={<Overview />} />
                     <Route path="apps" element={<Apps />} />
