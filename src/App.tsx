@@ -10,6 +10,7 @@ import { RequireAuth, RedirectIfAuthed } from "@/components/auth/RequireAuth";
 
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
