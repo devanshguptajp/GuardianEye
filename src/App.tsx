@@ -13,6 +13,7 @@ import { RequireAuth, RedirectIfAuthed } from "@/components/auth/RequireAuth";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Install from "./pages/Install";
+import ChildView from "./pages/ChildView";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
@@ -39,6 +40,7 @@ const App = () => (
                   <Route path="/" element={<Landing />} />
                   <Route path="/install" element={<Install />} />
                   <Route path="/auth" element={<RedirectIfAuthed><Auth /></RedirectIfAuthed>} />
+                  <Route path="/child/:childId" element={<RequireAuth><ChildView /></RequireAuth>} />
                   <Route path="/app" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
                     <Route index element={<Overview />} />
                     <Route path="apps" element={<Apps />} />
