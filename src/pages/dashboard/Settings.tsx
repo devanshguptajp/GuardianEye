@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
+import { usePremium } from "@/contexts/PremiumContext";
 import { Crown, ShieldCheck, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -56,17 +57,7 @@ const Settings = () => {
         <Button variant="outline" onClick={toggle}>Switch to {theme === "dark" ? "light" : "dark"} mode</Button>
       </section>
 
-      <section className="ge-card p-6 space-y-4 relative overflow-hidden">
-        <div className="absolute inset-0 ge-aurora opacity-30 pointer-events-none" />
-        <div className="relative">
-          <div className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-primary" />
-            <h2 className="font-display font-semibold">GuardianEye Premium</h2>
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">AI moderation, live location history and unlimited children.</p>
-          <Button className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow">Upgrade — $9.99/mo</Button>
-        </div>
-      </section>
+      <PremiumSection />
 
       <section className="ge-card p-6 space-y-3">
         <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-accent" /><h2 className="font-display font-semibold">Security</h2></div>
@@ -75,6 +66,36 @@ const Settings = () => {
         </Button>
       </section>
     </div>
+  );
+};
+
+const PremiumSection = () => {
+  const { isPremium, openUpgrade, setTier } = usePremium();
+  return (
+    <section className="ge-card p-6 space-y-4 relative overflow-hidden">
+      <div className="absolute inset-0 ge-aurora opacity-30 pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <Crown className="h-5 w-5 text-primary" />
+          <h2 className="font-display font-semibold">GuardianEye Premium</h2>
+          <span className={`ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${isPremium ? "bg-gradient-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
+            {isPremium ? "Premium" : "Basic"}
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isPremium
+            ? "All premium features are unlocked. Thanks for supporting GuardianEye!"
+            : "AI moderation, live location history, category web filtering and unlimited children."}
+        </p>
+        {isPremium ? (
+          <Button variant="outline" className="mt-4" onClick={() => setTier("basic")}>Switch to Basic (demo)</Button>
+        ) : (
+          <Button className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow" onClick={() => openUpgrade()}>
+            Upgrade — $9.99/mo
+          </Button>
+        )}
+      </div>
+    </section>
   );
 };
 
