@@ -14,16 +14,365 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_events: {
+        Row: {
+          app_name: string | null
+          child_id: string
+          device_id: string | null
+          duration_seconds: number | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          occurred_at: string
+          parent_id: string
+          url: string | null
+        }
+        Insert: {
+          app_name?: string | null
+          child_id: string
+          device_id?: string | null
+          duration_seconds?: number | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          parent_id: string
+          url?: string | null
+        }
+        Update: {
+          app_name?: string | null
+          child_id?: string
+          device_id?: string | null
+          duration_seconds?: number | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          parent_id?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_events_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_events_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alerts: {
+        Row: {
+          child_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          parent_id: string
+          read: boolean
+          severity: string
+          title: string
+        }
+        Insert: {
+          child_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          parent_id: string
+          read?: boolean
+          severity?: string
+          title: string
+        }
+        Update: {
+          child_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          parent_id?: string
+          read?: boolean
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_limits: {
+        Row: {
+          app_name: string
+          blocked: boolean
+          child_id: string
+          created_at: string
+          daily_minutes: number
+          id: string
+          package_id: string | null
+          parent_id: string
+        }
+        Insert: {
+          app_name: string
+          blocked?: boolean
+          child_id: string
+          created_at?: string
+          daily_minutes?: number
+          id?: string
+          package_id?: string | null
+          parent_id: string
+        }
+        Update: {
+          app_name?: string
+          blocked?: boolean
+          child_id?: string
+          created_at?: string
+          daily_minutes?: number
+          id?: string
+          package_id?: string | null
+          parent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_limits_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      children: {
+        Row: {
+          avatar_url: string | null
+          birth_year: number | null
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          parent_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          birth_year?: number | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          parent_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          birth_year?: number | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string
+        }
+        Relationships: []
+      }
+      devices: {
+        Row: {
+          child_id: string
+          created_at: string
+          device_name: string | null
+          id: string
+          last_seen: string | null
+          paired_at: string | null
+          pairing_code: string | null
+          parent_id: string
+          platform: string | null
+          status: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          device_name?: string | null
+          id?: string
+          last_seen?: string | null
+          paired_at?: string | null
+          pairing_code?: string | null
+          parent_id: string
+          platform?: string | null
+          status?: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          device_name?: string | null
+          id?: string
+          last_seen?: string | null
+          paired_at?: string | null
+          pairing_code?: string | null
+          parent_id?: string
+          platform?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          accuracy: number | null
+          child_id: string
+          device_id: string | null
+          id: string
+          latitude: number
+          longitude: number
+          parent_id: string
+          recorded_at: string
+        }
+        Insert: {
+          accuracy?: number | null
+          child_id: string
+          device_id?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          parent_id: string
+          recorded_at?: string
+        }
+        Update: {
+          accuracy?: number | null
+          child_id?: string
+          device_id?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          parent_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "locations_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "locations_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          pin_hash: string | null
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          pin_hash?: string | null
+          theme?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          pin_hash?: string | null
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      web_blocklist: {
+        Row: {
+          category: string | null
+          child_id: string
+          created_at: string
+          domain: string
+          id: string
+          parent_id: string
+        }
+        Insert: {
+          category?: string | null
+          child_id: string
+          created_at?: string
+          domain: string
+          id?: string
+          parent_id: string
+        }
+        Update: {
+          category?: string | null
+          child_id?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          parent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_blocklist_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "parent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +499,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "parent"],
+    },
   },
 } as const
