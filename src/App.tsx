@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SelectedChildProvider } from "@/contexts/SelectedChildContext";
+import { PremiumProvider } from "@/contexts/PremiumContext";
+import { UpgradeDialog } from "@/components/premium/UpgradeDialog";
 import { RequireAuth, RedirectIfAuthed } from "@/components/auth/RequireAuth";
 
 import Landing from "./pages/Landing";
@@ -32,21 +34,24 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <SelectedChildProvider>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/auth" element={<RedirectIfAuthed><Auth /></RedirectIfAuthed>} />
-                <Route path="/app" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
-                  <Route index element={<Overview />} />
-                  <Route path="apps" element={<Apps />} />
-                  <Route path="web" element={<Web />} />
-                  <Route path="devices" element={<Devices />} />
-                  <Route path="location" element={<Location />} />
-                  <Route path="alerts" element={<Alerts />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <PremiumProvider>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/auth" element={<RedirectIfAuthed><Auth /></RedirectIfAuthed>} />
+                  <Route path="/app" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
+                    <Route index element={<Overview />} />
+                    <Route path="apps" element={<Apps />} />
+                    <Route path="web" element={<Web />} />
+                    <Route path="devices" element={<Devices />} />
+                    <Route path="location" element={<Location />} />
+                    <Route path="alerts" element={<Alerts />} />
+                    <Route path="settings" element={<Settings />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <UpgradeDialog />
+              </PremiumProvider>
             </SelectedChildProvider>
           </AuthProvider>
         </BrowserRouter>
