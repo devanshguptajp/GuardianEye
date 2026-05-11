@@ -60,6 +60,8 @@ const Settings = () => {
 
       <PremiumSection />
 
+      <DeleteChildSection />
+
       <section className="ge-card p-6 space-y-3">
         <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-accent" /><h2 className="font-display font-semibold">Security</h2></div>
         <Button variant="outline" onClick={async () => { await signOut(); navigate("/"); }}>
