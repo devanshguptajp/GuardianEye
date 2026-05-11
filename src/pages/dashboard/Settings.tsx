@@ -9,6 +9,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { usePremium } from "@/contexts/PremiumContext";
 import { Crown, ShieldCheck, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DeleteChildSection } from "@/components/settings/DeleteChildSection";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
