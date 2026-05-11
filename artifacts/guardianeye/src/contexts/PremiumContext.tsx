@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGetMyProfile, queryOpts } from "@workspace/api-client-react";
 

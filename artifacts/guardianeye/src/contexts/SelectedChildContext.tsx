@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 const Ctx = createContext<{ selectedId: string | null; setSelectedId: (id: string | null) => void }>({
   selectedId: null, setSelectedId: () => {},
@@ -13,7 +13,6 @@ export const SelectedChildProvider = ({ children }: { children: ReactNode }) => 
     if (id) localStorage.setItem("ge-selected-child", id);
     else localStorage.removeItem("ge-selected-child");
   };
-  useEffect(() => {}, []);
   return <Ctx.Provider value={{ selectedId, setSelectedId }}>{children}</Ctx.Provider>;
 };
 
