@@ -52,6 +52,28 @@ router.delete("/children/:childId", requireAuth, async (req, res) => {
   return res.json({ success: true });
 });
 
+router.patch("/children/:childId/focus-mode", requireAuth, async (req, res) => {
+  const userId = getUserId(req);
+  const childId = String(req.params["childId"]);
+  const { mode, duration_minutes } = req.body;
+
+  const child = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parent_id, userId)),
+  });
+  if (!child) return res.status(404).json({ error: "Not found" });
+
+  const focus_mode_expires_at = duration_minutes
+    ? new Date(Date.now() + Number(duration_minutes) * 60 * 1000)
+    : null;
+
+  const [updated] = await db.update(children)
+    .set({ focus_mode: mode ?? null, focus_mode_expires_at })
+    .where(eq(children.id, childId))
+    .returning();
+
+  return res.json(updated);
+});
+
 router.get("/children/:childId/overview", requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const childId = String(req.params["childId"]);

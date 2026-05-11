@@ -16,5 +16,9 @@ export interface Child {
   birth_year?: number | null;
   /** @nullable */
   color?: string | null;
+  /** @nullable */
+  focus_mode?: string | null;
+  /** @nullable */
+  focus_mode_expires_at?: string | null;
   created_at: string;
 }

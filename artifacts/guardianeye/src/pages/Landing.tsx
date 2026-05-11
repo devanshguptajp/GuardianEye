@@ -14,7 +14,7 @@ const features = [
 ];
 
 const steps = [
-  { n: "01", title: "Create your account", desc: "Sign up for free and get 14 days of Pro features instantly — no credit card needed." },
+  { n: "01", title: "Create your account", desc: "Sign up for free and get 7 days of Pro features instantly — no credit card needed." },
   { n: "02", title: "Add a child profile", desc: "Enter your child's name and a few details. You can add up to 5 children on Pro." },
   { n: "03", title: "Pair their device", desc: "Open GuardianEye on their phone and scan the QR code. Done in under a minute." },
   { n: "04", title: "Monitor & protect", desc: "Set time limits, block sites, receive AI alerts, and track location from one dashboard." },
@@ -55,7 +55,7 @@ const plans = [
       "Instant alerts",
       "Priority support",
     ],
-    cta: "Start free trial",
+    cta: "Start 7-day free trial",
     featured: true,
   },
   {
@@ -66,10 +66,10 @@ const plans = [
     badge: "Best value",
     features: [
       "Everything in Pro",
-      "Save over 56% vs monthly",
+      "Save over 56% vs quarterly",
       "Priority support",
     ],
-    cta: "Start free trial",
+    cta: "Start 7-day free trial",
     featured: false,
     highlight: true,
   },
@@ -100,7 +100,9 @@ const Landing = () => {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <Link to="/sign-in"><Button variant="ghost" size="sm">Sign in</Button></Link>
-          <Link to="/sign-up"><Button size="sm" className="bg-gradient-primary text-primary-foreground shadow-glow">Get started</Button></Link>
+          <Link to="/sign-up">
+            <Button size="sm" className="bg-gradient-primary text-primary-foreground shadow-glow">Get started</Button>
+          </Link>
         </div>
       </header>
 
@@ -108,7 +110,7 @@ const Landing = () => {
       <section className="relative z-10 container pt-16 pb-24 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 backdrop-blur px-4 py-1.5 text-xs text-muted-foreground mb-8 animate-fade-in">
           <Sparkles className="h-3.5 w-3.5 text-primary" />
-          AI-powered family safety · Free 14-day Pro trial
+          AI-powered family safety · Free 7-day Pro trial — no credit card needed
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.05] max-w-4xl mx-auto animate-fade-in">
           Keep them safe.<br />
@@ -120,11 +122,13 @@ const Landing = () => {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3 animate-fade-in">
           <Link to="/sign-up">
             <Button size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12 px-8 text-base">
-              Start free for 14 days <ArrowRight className="ml-1 h-4 w-4" />
+              Start free for 7 days <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </Link>
           <a href="#how">
-            <Button size="lg" variant="outline" className="h-12 px-6 text-base">See how it works</Button>
+            <Button size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12 px-6 text-base">
+              See how it works
+            </Button>
           </a>
         </div>
         <p className="mt-4 text-xs text-muted-foreground">No credit card required · Cancel anytime</p>
@@ -216,7 +220,7 @@ const Landing = () => {
       <section id="pricing" className="relative z-10 container py-24">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="font-display text-4xl md:text-5xl font-bold">Simple, honest pricing</h2>
-          <p className="mt-4 text-muted-foreground">Start free, upgrade when you're ready. All plans include a 14-day Pro trial.</p>
+          <p className="mt-4 text-muted-foreground">Start free, upgrade when you're ready. All accounts get a 7-day Pro trial.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((p) => (
@@ -240,10 +244,7 @@ const Landing = () => {
                 ))}
               </ul>
               <Link to="/sign-up" className="block mt-8">
-                <Button
-                  className={`w-full ${p.featured ? "bg-gradient-primary text-primary-foreground shadow-glow" : ""}`}
-                  variant={p.featured ? "default" : "outline"}
-                >
+                <Button className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
                   {p.cta}
                 </Button>
               </Link>
@@ -251,7 +252,7 @@ const Landing = () => {
           ))}
         </div>
         <p className="text-center text-xs text-muted-foreground mt-8">
-          Prices in Indian Rupees (INR) · Payment coming soon · All trials include full Pro access
+          Prices in Indian Rupees (INR) · Payment coming soon · All accounts include a 7-day free Pro trial
         </p>
       </section>
 

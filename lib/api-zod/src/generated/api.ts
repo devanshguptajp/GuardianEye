@@ -80,6 +80,8 @@ export const ListChildrenResponseItem = zod.object({
   avatar_url: zod.string().nullish(),
   birth_year: zod.number().nullish(),
   color: zod.string().nullish(),
+  focus_mode: zod.string().nullish(),
+  focus_mode_expires_at: zod.string().nullish(),
   created_at: zod.string(),
 });
 export const ListChildrenResponse = zod.array(ListChildrenResponseItem);
@@ -108,6 +110,8 @@ export const GetChildResponse = zod.object({
   avatar_url: zod.string().nullish(),
   birth_year: zod.number().nullish(),
   color: zod.string().nullish(),
+  focus_mode: zod.string().nullish(),
+  focus_mode_expires_at: zod.string().nullish(),
   created_at: zod.string(),
 });
 
@@ -120,6 +124,30 @@ export const DeleteChildParams = zod.object({
 
 export const DeleteChildResponse = zod.object({
   success: zod.boolean(),
+});
+
+/**
+ * @summary Set or clear focus mode for a child
+ */
+export const SetFocusModeParams = zod.object({
+  childId: zod.coerce.string(),
+});
+
+export const SetFocusModeBody = zod.object({
+  mode: zod.string().nullish(),
+  duration_minutes: zod.number().nullish(),
+});
+
+export const SetFocusModeResponse = zod.object({
+  id: zod.string(),
+  parent_id: zod.string(),
+  name: zod.string(),
+  avatar_url: zod.string().nullish(),
+  birth_year: zod.number().nullish(),
+  color: zod.string().nullish(),
+  focus_mode: zod.string().nullish(),
+  focus_mode_expires_at: zod.string().nullish(),
+  created_at: zod.string(),
 });
 
 /**
@@ -359,6 +387,8 @@ export const GetChildOverviewResponse = zod.object({
     avatar_url: zod.string().nullish(),
     birth_year: zod.number().nullish(),
     color: zod.string().nullish(),
+    focus_mode: zod.string().nullish(),
+    focus_mode_expires_at: zod.string().nullish(),
     created_at: zod.string(),
   }),
   recent_alerts: zod.array(

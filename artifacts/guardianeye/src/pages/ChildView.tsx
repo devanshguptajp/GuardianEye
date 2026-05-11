@@ -1,13 +1,34 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { Logo } from "@/components/Logo";
-import { Lock, Clock, ShieldCheck, Smartphone, Globe, User, Shield } from "lucide-react";
+import { Lock, Clock, ShieldCheck, Smartphone, Globe, User, Shield, WifiOff, BookOpen, Focus } from "lucide-react";
 import { usePremium } from "@/contexts/PremiumContext";
 import { useGetChild, useListAppLimits, useListWebBlocklist, useVerifyPin, queryOpts } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { PinInput } from "@/components/PinInput";
 
 type Role = "select" | "child" | "pin_gate";
+
+const FOCUS_META: Record<string, { icon: typeof WifiOff; label: string; desc: string; color: string }> = {
+  internet_blocked: {
+    icon: WifiOff,
+    label: "Internet Blocked",
+    desc: "Your parent has blocked all internet access right now.",
+    color: "bg-destructive/15 text-destructive",
+  },
+  homework: {
+    icon: BookOpen,
+    label: "Homework Time",
+    desc: "Social and gaming apps are restricted. Focus on your studies!",
+    color: "bg-warning/15 text-warning",
+  },
+  focus: {
+    icon: Focus,
+    label: "Focus Mode",
+    desc: "Non-educational apps are paused. Stay on task!",
+    color: "bg-accent/15 text-accent",
+  },
+};
 
 const ChildView = () => {
   const params = useParams<{ childId: string }>();
@@ -25,7 +46,7 @@ const ChildView = () => {
     return <PinGate onSuccess={() => setLocation("/app")} onBack={() => setRole("select")} />;
   }
 
-  return <ChildContent childId={childId!} childName={child?.name ?? ""} onSwitchRole={() => setRole("select")} />;
+  return <ChildContent childId={childId!} child={child} onSwitchRole={() => setRole("select")} />;
 };
 
 const RoleSelector = ({ childName, onChild, onParent }: { childName: string; onChild: () => void; onParent: () => void }) => (
@@ -69,7 +90,7 @@ const RoleSelector = ({ childName, onChild, onParent }: { childName: string; onC
               </div>
               <div>
                 <div className="font-semibold">I'm a Parent</div>
-                <div className="text-xs text-muted-foreground">Requires parent PIN</div>
+                <div className="text-xs text-muted-foreground">Requires parent PIN → go to dashboard</div>
               </div>
             </button>
           </div>
@@ -85,13 +106,13 @@ const RoleSelector = ({ childName, onChild, onParent }: { childName: string; onC
 
 const PinGate = ({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => void }) => {
   const [pin, setPin] = useState("");
+  const [pinLen, setPinLen] = useState<4 | 6>(4);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const verifyPin = useVerifyPin();
 
   const tryPin = (p: string) => {
-    if (p.length < 4) return;
     setError("");
     setBusy(true);
     verifyPin.mutate({ data: { pin_hash: btoa(p) } }, {
@@ -102,18 +123,18 @@ const PinGate = ({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => v
         } else {
           setAttempts((n) => n + 1);
           setPin("");
-          setError(attempts >= 2 ? "Too many attempts. Try again later." : "Incorrect PIN. Please try again.");
+          setError(attempts >= 2 ? "Too many attempts. Try again later." : "Incorrect PIN. Try again.");
         }
       },
-      onError: () => { setBusy(false); setError("Verification failed. Check your connection."); },
+      onError: () => { setBusy(false); setError("Connection error. Check your network."); },
     });
   };
 
   useEffect(() => {
-    if (pin.length === 4 || pin.length === 6) {
+    if (pin.length === pinLen && !busy) {
       tryPin(pin);
     }
-  }, [pin]);
+  }, [pin, pinLen]);
 
   return (
     <div className="min-h-screen ge-aurora flex items-center justify-center p-4">
@@ -124,16 +145,25 @@ const PinGate = ({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => v
               <Shield className="h-7 w-7 text-accent" />
             </div>
             <div className="mt-3 font-display font-bold text-lg">Parent access</div>
-            <div className="text-sm text-muted-foreground mt-1">Enter your parent PIN to continue</div>
+            <div className="text-sm text-muted-foreground mt-1">Enter your parent PIN to go to the dashboard</div>
           </div>
 
-          <PinInput length={4} value={pin} onChange={setPin} autoFocus disabled={busy} />
-          {pin.length === 6 && <PinInput length={6} value={pin} onChange={setPin} autoFocus disabled={busy} />}
+          <div className="flex justify-center gap-2 mb-2">
+            {([4, 6] as const).map((n) => (
+              <button
+                key={n}
+                onClick={() => { setPinLen(n); setPin(""); setError(""); }}
+                className={`px-3 py-1 rounded-lg text-xs font-medium border transition-colors ${pinLen === n ? "border-accent bg-accent/10 text-accent" : "border-border text-muted-foreground"}`}
+              >
+                {n}-digit PIN
+              </button>
+            ))}
+          </div>
+
+          <PinInput length={pinLen} value={pin} onChange={setPin} autoFocus disabled={busy} />
 
           {error && <p className="text-destructive text-sm">{error}</p>}
           {busy && <p className="text-muted-foreground text-sm">Verifying…</p>}
-
-          <div className="text-xs text-muted-foreground">Try 4 digits or 6 digits depending on your PIN length</div>
 
           <Button variant="ghost" size="sm" onClick={onBack} className="w-full text-muted-foreground">
             ← Back
@@ -144,7 +174,15 @@ const PinGate = ({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => v
   );
 };
 
-const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; childName: string; onSwitchRole: () => void }) => {
+const ChildContent = ({
+  childId,
+  child,
+  onSwitchRole,
+}: {
+  childId: string;
+  child: { name?: string; focus_mode?: string | null; focus_mode_expires_at?: string | null } | undefined;
+  onSwitchRole: () => void;
+}) => {
   const { isPremium } = usePremium();
   const [now, setNow] = useState(new Date());
 
@@ -155,6 +193,12 @@ const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; c
 
   const { data: apps = [] } = useListAppLimits(childId, { query: queryOpts({ enabled: !!childId }) });
   const { data: blocks = [] } = useListWebBlocklist(childId, { query: queryOpts({ enabled: !!childId }) });
+
+  const childName = child?.name ?? "";
+  const focusMode = child?.focus_mode;
+  const focusExpiresAt = child?.focus_mode_expires_at ? new Date(child.focus_mode_expires_at) : null;
+  const focusModeActive = focusMode && (!focusExpiresAt || focusExpiresAt > now);
+  const focusMeta = focusMode ? FOCUS_META[focusMode] : null;
 
   const usedFor = (a: (typeof apps)[0]) => {
     const seed = a.id.charCodeAt(0) + a.id.charCodeAt(1);
@@ -183,7 +227,7 @@ const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; c
             <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-accent" /> Protected</span>
           </div>
 
-          <div className="px-6 pt-2 pb-6">
+          <div className="px-6 pt-2 pb-4">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-2xl bg-gradient-primary grid place-items-center text-primary-foreground font-bold text-lg shadow-glow">
                 {initial}
@@ -194,14 +238,31 @@ const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; c
               </div>
             </div>
 
-            <div className={`mt-4 rounded-xl px-3 py-2 text-xs flex items-center gap-2 ${
-              isPremium ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground"
-            }`}>
-              {isPremium ? <Lock className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-              {isPremium
-                ? "Auto-lock is on. Apps will pause when your daily time is up."
-                : "Time-up reminders only. Your parent hasn't enabled auto-lock."}
-            </div>
+            {focusModeActive && focusMeta && (
+              <div className={`mt-3 rounded-xl px-3 py-2.5 flex items-start gap-2 ${focusMeta.color}`}>
+                <focusMeta.icon className="h-4 w-4 mt-0.5 shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold">{focusMeta.label} is active</div>
+                  <div className="text-xs opacity-80 mt-0.5">{focusMeta.desc}</div>
+                  {focusExpiresAt && (
+                    <div className="text-xs opacity-70 mt-0.5">
+                      Until {focusExpiresAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!focusModeActive && (
+              <div className={`mt-3 rounded-xl px-3 py-2 text-xs flex items-center gap-2 ${
+                isPremium ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground"
+              }`}>
+                {isPremium ? <Lock className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+                {isPremium
+                  ? "Auto-lock is on. Apps will pause when your daily time is up."
+                  : "Time-up reminders only. Your parent hasn't enabled auto-lock."}
+              </div>
+            )}
           </div>
 
           <div className="px-4 pb-4">
@@ -218,7 +279,8 @@ const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; c
                   const used = usedFor(a);
                   const pct = a.blocked ? 100 : Math.min(100, (used / Math.max(a.daily_minutes, 1)) * 100);
                   const reached = !a.blocked && used >= a.daily_minutes;
-                  const locked = a.blocked || (reached && isPremium);
+                  const focusLocked = !!focusModeActive && focusMode !== "internet_blocked";
+                  const locked = a.blocked || (reached && isPremium) || focusLocked;
                   return (
                     <li key={a.id} className={`ge-card p-3 flex items-center gap-3 ${locked ? "opacity-80" : ""}`}>
                       <div className={`h-10 w-10 rounded-xl grid place-items-center text-sm font-bold ${
@@ -230,14 +292,16 @@ const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; c
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-medium truncate">{a.app_name}</span>
                           <span className={`text-xs shrink-0 ${locked ? "text-destructive font-medium" : "text-muted-foreground"}`}>
-                            {a.blocked ? "Blocked" : reached ? (isPremium ? "Locked" : "Time's up") : `${used}/${a.daily_minutes} min`}
+                            {a.blocked ? "Blocked" : focusLocked ? "Paused" : reached ? (isPremium ? "Locked" : "Time's up") : `${used}/${a.daily_minutes} min`}
                           </span>
                         </div>
                         <div className="mt-1.5 h-1.5 rounded-full bg-secondary overflow-hidden">
                           <div className={`h-full transition-all ${locked ? "bg-destructive" : "bg-gradient-primary"}`} style={{ width: `${pct}%` }} />
                         </div>
-                        {locked && isPremium && (
-                          <div className="mt-1 text-[10px] text-destructive">Daily limit reached — app is blocked until tomorrow</div>
+                        {locked && (
+                          <div className="mt-1 text-[10px] text-destructive">
+                            {focusLocked ? `${focusMeta?.label ?? "Focus mode"} — app paused` : "Daily limit reached — blocked until tomorrow"}
+                          </div>
                         )}
                       </div>
                     </li>

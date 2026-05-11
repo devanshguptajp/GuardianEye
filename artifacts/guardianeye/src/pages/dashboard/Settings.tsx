@@ -47,13 +47,14 @@ const Settings = () => {
         <div>
           <Label htmlFor="dn">Display name</Label>
           <Input id="dn" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
+          <p className="text-xs text-muted-foreground mt-1">Shown in your dashboard. You can update this any time.</p>
         </div>
         <div>
           <Label>Email</Label>
           <Input value={user?.email ?? ""} disabled className="mt-1.5" />
         </div>
         <Button onClick={save} disabled={busy} className="bg-gradient-primary text-primary-foreground">
-          {busy ? "Saving…" : "Save"}
+          {busy ? "Saving…" : "Save changes"}
         </Button>
       </section>
 
@@ -112,8 +113,7 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
       return;
     }
     setBusy(true);
-    const hash = btoa(pin);
-    setPin_.mutate({ data: { pin_hash: hash } }, {
+    setPin_.mutate({ data: { pin_hash: btoa(pin) } }, {
       onSuccess: () => { toast({ title: "Parent PIN saved" }); reset(); setBusy(false); },
       onError: () => { toast({ title: "Failed to save PIN", variant: "destructive" }); setBusy(false); },
     });
@@ -138,15 +138,18 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
         <Lock className="h-5 w-5 text-primary" />
         <h2 className="font-display font-semibold">Parent PIN</h2>
         {hasPin && <span className="ml-auto text-xs text-accent font-medium">Active</span>}
+        {!hasPin && <span className="ml-auto text-xs text-warning font-medium">Not set</span>}
       </div>
       <p className="text-sm text-muted-foreground">
-        A 4 or 6-digit numeric PIN to access parent controls and settings. Different from your account password.
+        A 4 or 6-digit numeric PIN to access parent controls on a shared device. Different from your account password.
       </p>
 
       {mode === "idle" && (
         <div className="flex gap-2">
           {!hasPin ? (
-            <Button variant="outline" onClick={() => setMode("set")}>Set a PIN</Button>
+            <Button className="bg-gradient-primary text-primary-foreground" onClick={() => setMode("set")}>
+              <Lock className="h-4 w-4 mr-2" /> Set a PIN now
+            </Button>
           ) : (
             <Button variant="outline" onClick={() => setMode("change_verify")}>Change PIN</Button>
           )}
@@ -211,8 +214,19 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
       {mode === "change_verify" && (
         <div className="space-y-4 pt-2">
           <div>
-            <p className="text-sm text-center text-muted-foreground mb-3">Enter your current PIN</p>
+            <p className="text-sm text-center text-muted-foreground mb-3">Enter your current PIN to verify</p>
             <PinInput length={pinLen} value={pin} onChange={setPin} autoFocus />
+            <div className="flex justify-center mt-2 gap-2">
+              {([4, 6] as const).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => { setPinLen(n); setPin(""); }}
+                  className={`px-2 py-0.5 rounded text-xs font-medium border transition-colors ${pinLen === n ? "border-primary text-primary" : "border-border text-muted-foreground"}`}
+                >
+                  {n}-digit
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={reset} className="flex-1">Cancel</Button>
@@ -231,7 +245,7 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
 };
 
 const PremiumSection = () => {
-  const { isPremium, isOnTrial, trialDaysLeft, trialEndsAt, openUpgrade, setTier } = usePremium();
+  const { isPremium, isOnTrial, trialDaysLeft, trialEndsAt, openUpgrade } = usePremium();
   return (
     <section className="ge-card p-6 space-y-4 relative overflow-hidden">
       <div className="absolute inset-0 ge-aurora opacity-30 pointer-events-none" />
@@ -254,6 +268,13 @@ const PremiumSection = () => {
           </div>
         )}
 
+        {!isOnTrial && !isPremium && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-warning bg-warning/10 rounded-lg px-3 py-2">
+            <Clock className="h-4 w-4 shrink-0" />
+            <span>Your trial has ended. Upgrade to keep Pro features.</span>
+          </div>
+        )}
+
         <p className="text-sm text-muted-foreground mt-2">
           {isPremium && !isOnTrial
             ? "All Pro features are unlocked. Thank you for supporting GuardianEye!"
@@ -273,13 +294,11 @@ const PremiumSection = () => {
           </div>
         </div>
 
-        {!isPremium || isOnTrial ? (
+        {(!isPremium || isOnTrial) && (
           <Button className="mt-4 w-full bg-gradient-primary text-primary-foreground shadow-glow" onClick={() => openUpgrade()}>
             <Crown className="h-4 w-4 mr-2" />
             {isOnTrial ? "Upgrade to keep Pro" : "Upgrade to Pro"}
           </Button>
-        ) : (
-          <Button variant="outline" className="mt-4" onClick={() => setTier("basic")}>Switch to Free (demo)</Button>
         )}
       </div>
     </section>

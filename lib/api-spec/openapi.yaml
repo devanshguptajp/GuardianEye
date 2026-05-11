@@ -173,6 +173,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
 
+  /children/{childId}/focus-mode:
+    patch:
+      operationId: setFocusMode
+      tags: [children]
+      summary: Set or clear focus mode for a child
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FocusModeInput"
+      responses:
+        "200":
+          description: Updated child
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+
   /children/{childId}/alerts:
     get:
       operationId: listAlerts
@@ -571,6 +596,10 @@ components:
           type: ["integer", "null"]
         color:
           type: ["string", "null"]
+        focus_mode:
+          type: ["string", "null"]
+        focus_mode_expires_at:
+          type: ["string", "null"]
         created_at:
           type: string
       required:
@@ -592,6 +621,14 @@ components:
           type: string
       required:
         - name
+
+    FocusModeInput:
+      type: object
+      properties:
+        mode:
+          type: ["string", "null"]
+        duration_minutes:
+          type: ["integer", "null"]
 
     Alert:
       type: object

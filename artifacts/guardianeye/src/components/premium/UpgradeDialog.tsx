@@ -1,4 +1,4 @@
-import { Crown, Check, Sparkles, Calendar } from "lucide-react";
+import { Crown, Check, Sparkles, Calendar, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/contexts/PremiumContext";
@@ -17,7 +17,7 @@ const pricingOptions = [
 ];
 
 export const UpgradeDialog = () => {
-  const { upgradeOpen, closeUpgrade, feature, setTier } = usePremium();
+  const { upgradeOpen, closeUpgrade, feature, isOnTrial, trialDaysLeft } = usePremium();
 
   return (
     <Dialog open={upgradeOpen} onOpenChange={(o) => !o && closeUpgrade()}>
@@ -40,6 +40,15 @@ export const UpgradeDialog = () => {
         </div>
 
         <div className="p-6 space-y-5">
+          {isOnTrial && (
+            <div className="rounded-lg bg-accent/10 border border-accent/30 px-4 py-3 text-sm text-accent flex items-center gap-2">
+              <Clock className="h-4 w-4 shrink-0" />
+              <span>
+                You have <strong>{trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} left</strong> on your free trial. Upgrade now to keep Pro after it ends.
+              </span>
+            </div>
+          )}
+
           <ul className="space-y-2.5">
             {perks.map((p) => (
               <li key={p} className="flex items-start gap-2.5 text-sm">
@@ -73,21 +82,17 @@ export const UpgradeDialog = () => {
             <Button
               className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
               onClick={() => {
+                closeUpgrade();
                 window.open("https://guardianeye.app/upgrade", "_blank", "noopener,noreferrer");
               }}
             >
               <Sparkles className="h-4 w-4 mr-2" /> Upgrade now
             </Button>
             <p className="text-center text-[10px] text-muted-foreground">
-              Secure payment · Cancel anytime · 14-day free trial included
+              Secure payment · Cancel anytime · 7-day free trial for new accounts
             </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full text-xs text-muted-foreground"
-              onClick={() => { setTier("premium"); closeUpgrade(); }}
-            >
-              Continue with trial (demo)
+            <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={closeUpgrade}>
+              Maybe later
             </Button>
           </div>
         </div>

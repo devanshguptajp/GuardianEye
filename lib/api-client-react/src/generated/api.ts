@@ -28,6 +28,7 @@ import type {
   ChildOverview,
   Device,
   DeviceInput,
+  FocusModeInput,
   HealthStatus,
   PinInput,
   PinVerifyResult,
@@ -779,6 +780,93 @@ export const useDeleteChild = <
   TContext
 > => {
   return useMutation(getDeleteChildMutationOptions(options));
+};
+
+/**
+ * @summary Set or clear focus mode for a child
+ */
+export const getSetFocusModeUrl = (childId: string) => {
+  return `/api/children/${childId}/focus-mode`;
+};
+
+export const setFocusMode = async (
+  childId: string,
+  focusModeInput: FocusModeInput,
+  options?: RequestInit,
+): Promise<Child> => {
+  return customFetch<Child>(getSetFocusModeUrl(childId), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(focusModeInput),
+  });
+};
+
+export const getSetFocusModeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setFocusMode>>,
+    TError,
+    { childId: string; data: BodyType<FocusModeInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof setFocusMode>>,
+  TError,
+  { childId: string; data: BodyType<FocusModeInput> },
+  TContext
+> => {
+  const mutationKey = ["setFocusMode"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof setFocusMode>>,
+    { childId: string; data: BodyType<FocusModeInput> }
+  > = (props) => {
+    const { childId, data } = props ?? {};
+
+    return setFocusMode(childId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SetFocusModeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof setFocusMode>>
+>;
+export type SetFocusModeMutationBody = BodyType<FocusModeInput>;
+export type SetFocusModeMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Set or clear focus mode for a child
+ */
+export const useSetFocusMode = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setFocusMode>>,
+    TError,
+    { childId: string; data: BodyType<FocusModeInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof setFocusMode>>,
+  TError,
+  { childId: string; data: BodyType<FocusModeInput> },
+  TContext
+> => {
+  return useMutation(getSetFocusModeMutationOptions(options));
 };
 
 /**

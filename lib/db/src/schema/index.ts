@@ -21,6 +21,8 @@ export const children = pgTable("children", {
   avatar_url: text("avatar_url"),
   birth_year: integer("birth_year"),
   color: text("color"),
+  focus_mode: text("focus_mode"),
+  focus_mode_expires_at: timestamp("focus_mode_expires_at"),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
