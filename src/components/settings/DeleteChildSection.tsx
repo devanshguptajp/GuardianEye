@@ -31,6 +31,7 @@ export const DeleteChildSection = () => {
 
   const [pinSet, setPinSet] = useState<boolean>(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [oldPin, setOldPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [newPin2, setNewPin2] = useState("");
 
@@ -52,13 +53,24 @@ export const DeleteChildSection = () => {
     if (!user) return;
     if (!/^\d{4,8}$/.test(newPin)) return toast({ title: "PIN must be 4–8 digits", variant: "destructive" });
     if (newPin !== newPin2) return toast({ title: "PINs don't match", variant: "destructive" });
+
+    // If a PIN already exists, require the old one first.
+    if (pinSet) {
+      if (!/^\d{4,8}$/.test(oldPin)) return toast({ title: "Enter your current PIN", variant: "destructive" });
+      const { data: prof } = await supabase.from("profiles").select("pin_hash").eq("id", user.id).maybeSingle();
+      const oldH = await hashPin(user.id, oldPin);
+      if (!prof?.pin_hash || prof.pin_hash !== oldH) {
+        return toast({ title: "Current PIN is incorrect", variant: "destructive" });
+      }
+    }
+
     const h = await hashPin(user.id, newPin);
     const { error } = await supabase.from("profiles").update({ pin_hash: h }).eq("id", user.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     setPinSet(true);
     setPinDialogOpen(false);
-    setNewPin(""); setNewPin2("");
-    toast({ title: "Parent PIN saved" });
+    setOldPin(""); setNewPin(""); setNewPin2("");
+    toast({ title: "Parent PIN updated" });
   };
 
   const openConfirm = () => {
