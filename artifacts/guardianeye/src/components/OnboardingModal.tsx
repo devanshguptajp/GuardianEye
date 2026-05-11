@@ -4,15 +4,17 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Smartphone, ArrowRight, Lock, CheckCircle2, User } from "lucide-react";
-import { useListChildren, useGetMyProfile, useUpdateMyProfile, useSetPin, queryOpts } from "@workspace/api-client-react";
+import { Shield, Smartphone, ArrowRight, Lock, CheckCircle2, User, Plus, QrCode, Loader2 } from "lucide-react";
+import { useListChildren, useGetMyProfile, useUpdateMyProfile, useSetPin, useCreateChild, useCreateDevice, queryOpts } from "@workspace/api-client-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { PinInput } from "@/components/PinInput";
 import { Logo } from "@/components/Logo";
+import { QRCodeSVG } from "qrcode.react";
 
 const storageKey = (userId: string) => `ge_welcomed_${userId}`;
 
-type Step = "name" | "pin" | "done";
+type Step = "name" | "pin" | "add_child" | "done";
+const STEPS: Step[] = ["name", "pin", "add_child", "done"];
 
 export const OnboardingModal = () => {
   const { user } = useAuth();
@@ -22,12 +24,16 @@ export const OnboardingModal = () => {
   const [displayName, setDisplayName] = useState("");
   const [pin, setPin] = useState("");
   const [pinLen, setPinLen] = useState<4 | 6>(4);
+  const [childName, setChildName] = useState("");
+  const [pairUrl, setPairUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const { data: children, isSuccess } = useListChildren({ query: queryOpts({ enabled: !!user }) });
   const { data: profile } = useGetMyProfile({ query: queryOpts({ enabled: !!user }) });
   const updateProfile = useUpdateMyProfile();
   const setPin_ = useSetPin();
+  const createChild = useCreateChild();
+  const createDevice = useCreateDevice();
 
   const suggested = user?.name
     ?? (user?.email
@@ -75,18 +81,47 @@ export const OnboardingModal = () => {
     setPin_.mutate(
       { data: { pin_hash: btoa(pin) } },
       {
-        onSuccess: () => { setBusy(false); setStep("done"); },
-        onError: () => { setBusy(false); setStep("done"); },
+        onSuccess: () => { setBusy(false); setStep("add_child"); },
+        onError: () => { setBusy(false); setStep("add_child"); },
       },
     );
   };
 
-  const handleSkipPin = () => setStep("done");
+  const handleSkipPin = () => setStep("add_child");
+
+  const handleAddChild = () => {
+    if (!childName.trim()) return;
+    setBusy(true);
+    createChild.mutate(
+      { data: { name: childName.trim() } },
+      {
+        onSuccess: (child) => {
+          createDevice.mutate(
+            { childId: child.id, data: { device_name: "First device" } },
+            {
+              onSuccess: (device) => {
+                if (device.pairing_code) {
+                  setPairUrl(`${window.location.origin}/pair/${device.pairing_code}`);
+                }
+                setBusy(false);
+              },
+              onError: () => { setBusy(false); },
+            },
+          );
+        },
+        onError: () => { setBusy(false); },
+      },
+    );
+  };
+
+  const handleSkipChild = () => setStep("done");
 
   const goToDashboard = () => {
     finish();
     setLocation("/app");
   };
+
+  const stepIndex = STEPS.indexOf(step);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) finish(); }}>
@@ -101,11 +136,13 @@ export const OnboardingModal = () => {
               <div className="font-display font-bold text-xl">
                 {step === "name" && "Welcome to GuardianEye!"}
                 {step === "pin" && "Create a parent PIN"}
+                {step === "add_child" && "Add your first child"}
                 {step === "done" && "You're all set!"}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                {step === "name" && "Your 7-day free Pro trial has started"}
+                {step === "name" && "Your 14-day free Pro trial has started"}
                 {step === "pin" && "Secure your dashboard with a PIN"}
+                {step === "add_child" && pairUrl ? "Scan the QR to pair their device" : "Enter your child's name to get started"}
                 {step === "done" && "Let's start protecting your family"}
               </div>
             </div>
@@ -113,11 +150,11 @@ export const OnboardingModal = () => {
         </div>
 
         <div className="flex justify-center gap-1.5 py-3">
-          {(["name", "pin", "done"] as Step[]).map((s, i) => (
+          {STEPS.map((s, i) => (
             <div
               key={s}
               className={`h-1.5 rounded-full transition-all ${
-                s === step ? "w-6 bg-primary" : i < (["name","pin","done"] as Step[]).indexOf(step) ? "w-3 bg-primary/50" : "w-3 bg-border"
+                s === step ? "w-6 bg-primary" : i < stepIndex ? "w-3 bg-primary/50" : "w-3 bg-border"
               }`}
             />
           ))}
@@ -199,6 +236,66 @@ export const OnboardingModal = () => {
             </>
           )}
 
+          {step === "add_child" && (
+            <>
+              {!pairUrl ? (
+                <>
+                  <div className="ge-card p-4 flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-gradient-primary/15 grid place-items-center shrink-0">
+                      <Plus className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Add your child's profile so you can set limits and start monitoring.
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="child-name">Child's name</Label>
+                    <Input
+                      id="child-name"
+                      value={childName}
+                      onChange={(e) => setChildName(e.target.value)}
+                      placeholder="e.g. Arjun"
+                      autoFocus
+                      onKeyDown={(e) => e.key === "Enter" && !busy && childName.trim() && handleAddChild()}
+                    />
+                  </div>
+                  <Button
+                    className="w-full bg-gradient-primary text-primary-foreground"
+                    disabled={!childName.trim() || busy}
+                    onClick={handleAddChild}
+                  >
+                    {busy ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating…</> : <><Plus className="h-4 w-4 mr-1.5" /> Add child & generate QR</>}
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={handleSkipChild}>
+                    Skip — I'll add a child from the dashboard
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="text-center space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-medium justify-center text-accent">
+                      <CheckCircle2 className="h-4 w-4" /> {childName} added!
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Scan this QR code on their device to link it instantly.
+                    </div>
+                    <div className="mx-auto inline-block p-4 rounded-2xl bg-white shadow-glow">
+                      <QRCodeSVG value={pairUrl} size={160} />
+                    </div>
+                    <div className="ge-card p-3 text-xs text-muted-foreground flex items-start gap-2">
+                      <QrCode className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+                      <span>Open this website on the child's phone and tap "Scan to connect" — or share the link below.</span>
+                    </div>
+                    <div className="font-mono text-[10px] bg-secondary rounded px-2 py-1.5 break-all text-muted-foreground">{pairUrl}</div>
+                  </div>
+                  <Button className="w-full bg-gradient-primary text-primary-foreground shadow-glow" onClick={() => setStep("done")}>
+                    Continue <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </>
+              )}
+            </>
+          )}
+
           {step === "done" && (
             <>
               <div className="space-y-3">
@@ -207,8 +304,8 @@ export const OnboardingModal = () => {
                     <span className="text-sm font-bold text-primary">1</span>
                   </div>
                   <div>
-                    <div className="font-medium text-sm">Add a child profile</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Create a profile for each child you want to monitor.</div>
+                    <div className="font-medium text-sm">Add more children</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">Create profiles for each child you want to monitor.</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 ge-card p-3">
@@ -216,8 +313,8 @@ export const OnboardingModal = () => {
                     <Smartphone className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm">Link their device</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Scan the QR code on their phone to pair it instantly.</div>
+                    <div className="font-medium text-sm">Pair more devices</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">Each child can have up to 5 paired devices.</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 ge-card p-3 border-accent/30 bg-accent/5">
@@ -225,7 +322,7 @@ export const OnboardingModal = () => {
                     <CheckCircle2 className="h-4 w-4 text-accent" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm text-accent">7-day free Pro trial active</div>
+                    <div className="font-medium text-sm text-accent">14-day free Pro trial active</div>
                     <div className="text-xs text-muted-foreground mt-0.5">All Pro features unlocked. No credit card needed.</div>
                   </div>
                 </div>

@@ -12,11 +12,13 @@ import { SelectedChildProvider } from "@/contexts/SelectedChildContext";
 import { PremiumProvider } from "@/contexts/PremiumContext";
 import { UpgradeDialog } from "@/components/premium/UpgradeDialog";
 import { OnboardingModal } from "@/components/OnboardingModal";
+import { AddToHomeScreen } from "@/components/AddToHomeScreen";
 import { ArrowLeft } from "lucide-react";
 
 import Landing from "./pages/Landing";
 import Install from "./pages/Install";
 import ChildView from "./pages/ChildView";
+import PairDevice from "./pages/PairDevice";
 import NotFound from "./pages/not-found";
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
@@ -131,6 +133,7 @@ function AppRoutes() {
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/install" component={Install} />
+      <Route path="/pair/:code" component={PairDevice} />
       <Route path="/child/:childId">
         {() => <RequireAuth><ChildView /></RequireAuth>}
       </Route>
@@ -181,6 +184,7 @@ function ClerkProviderWithRoutes() {
                   <AppRoutes />
                   <UpgradeDialog />
                   <OnboardingModal />
+                  <AddToHomeScreen />
                 </PremiumProvider>
               </SelectedChildProvider>
             </AuthProvider>

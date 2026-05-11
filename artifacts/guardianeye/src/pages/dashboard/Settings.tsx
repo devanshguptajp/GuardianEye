@@ -6,14 +6,15 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePremium } from "@/contexts/PremiumContext";
-import { Crown, ShieldCheck, LogOut, Lock, Sun, Moon, Clock } from "lucide-react";
+import { Crown, ShieldCheck, LogOut, Lock, Sun, Moon, Clock, CheckCircle2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { DeleteChildSection } from "@/components/settings/DeleteChildSection";
 import {
   useGetMyProfile, useUpdateMyProfile, useSetPin, useVerifyPin,
-  queryOpts, type UpdateMyProfileMutationError,
+  getGetMyProfileQueryKey, queryOpts, type UpdateMyProfileMutationError,
 } from "@workspace/api-client-react";
 import { PinInput } from "@/components/PinInput";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -87,8 +88,10 @@ const Settings = () => {
   );
 };
 
-const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
+const ParentPinSection = ({ hasPin: initialHasPin }: { hasPin: boolean }) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [hasPin, setHasPin] = useState(initialHasPin);
   const [mode, setMode] = useState<"idle" | "set" | "change_verify" | "change_set">("idle");
   const [pinLen, setPinLen] = useState<4 | 6>(4);
   const [pin, setPin] = useState("");
@@ -97,6 +100,8 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
   const [busy, setBusy] = useState(false);
   const setPin_ = useSetPin();
   const verifyPin = useVerifyPin();
+
+  useEffect(() => { setHasPin(initialHasPin); }, [initialHasPin]);
 
   const reset = () => { setMode("idle"); setPin(""); setConfirmPin(""); setStep("enter"); };
 
@@ -114,7 +119,13 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
     }
     setBusy(true);
     setPin_.mutate({ data: { pin_hash: btoa(pin) } }, {
-      onSuccess: () => { toast({ title: "Parent PIN saved" }); reset(); setBusy(false); },
+      onSuccess: () => {
+        toast({ title: "Parent PIN saved", description: "Your dashboard is now PIN-protected." });
+        setHasPin(true);
+        queryClient.invalidateQueries({ queryKey: getGetMyProfileQueryKey() });
+        reset();
+        setBusy(false);
+      },
       onError: () => { toast({ title: "Failed to save PIN", variant: "destructive" }); setBusy(false); },
     });
   };
@@ -134,12 +145,25 @@ const ParentPinSection = ({ hasPin }: { hasPin: boolean }) => {
 
   return (
     <section className="ge-card p-6 space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Lock className="h-5 w-5 text-primary" />
         <h2 className="font-display font-semibold">Parent PIN</h2>
-        {hasPin && <span className="ml-auto text-xs text-accent font-medium">Active</span>}
-        {!hasPin && <span className="ml-auto text-xs text-warning font-medium">Not set</span>}
+        {hasPin ? (
+          <span className="ml-auto flex items-center gap-1.5 text-xs text-accent font-medium">
+            <CheckCircle2 className="h-3.5 w-3.5" /> PIN is set &amp; active
+          </span>
+        ) : (
+          <span className="ml-auto text-xs text-warning font-medium">Not set</span>
+        )}
       </div>
+
+      {hasPin && (
+        <div className="rounded-lg bg-accent/10 border border-accent/30 px-3 py-2.5 text-xs text-accent flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 shrink-0" />
+          <span>Your dashboard and child settings are protected by your PIN. Children cannot change these settings.</span>
+        </div>
+      )}
+
       <p className="text-sm text-muted-foreground">
         A 4 or 6-digit numeric PIN to access parent controls on a shared device. Different from your account password.
       </p>
@@ -279,7 +303,7 @@ const PremiumSection = () => {
           {isPremium && !isOnTrial
             ? "All Pro features are unlocked. Thank you for supporting GuardianEye!"
             : isOnTrial
-            ? "You have full Pro access during your trial. Upgrade to keep your features after it ends."
+            ? "You have full Pro access during your 14-day trial. Upgrade to keep your features after it ends."
             : "Upgrade to Pro for AI moderation, live location, auto-locking, up to 5 children & devices."}
         </p>
 

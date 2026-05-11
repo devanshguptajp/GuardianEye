@@ -54,4 +54,40 @@ router.delete("/devices/:deviceId", requireAuth, async (req, res) => {
   return res.json({ success: true });
 });
 
+router.get("/devices/pair/:code", async (req, res) => {
+  const code = String(req.params["code"]).toUpperCase();
+  const device = await db.query.devices.findFirst({
+    where: eq(devices.pairing_code, code),
+  });
+  if (!device) return res.status(404).json({ error: "Invalid pairing code" });
+  const child = await db.query.children.findFirst({
+    where: eq(children.id, device.child_id),
+  });
+  return res.json({
+    device,
+    childName: child?.name ?? "Unknown",
+    childId: device.child_id,
+    status: device.status,
+  });
+});
+
+router.post("/devices/pair/:code", async (req, res) => {
+  const code = String(req.params["code"]).toUpperCase();
+  const { platform } = req.body;
+  const device = await db.query.devices.findFirst({
+    where: eq(devices.pairing_code, code),
+  });
+  if (!device) return res.status(404).json({ error: "Invalid pairing code" });
+
+  const [updated] = await db.update(devices)
+    .set({
+      status: "active",
+      last_seen: new Date(),
+      platform: platform ?? device.platform ?? "web",
+    })
+    .where(eq(devices.pairing_code, code))
+    .returning();
+  return res.json({ success: true, childId: updated.child_id });
+});
+
 export default router;

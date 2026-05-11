@@ -78,6 +78,7 @@
   "dependencies": {
     "@clerk/react": "^6.6.2",
     "@clerk/shared": "^4.10.2",
+    "jsqr": "^1.4.0",
     "qrcode.react": "^4.2.0"
   }
 }
