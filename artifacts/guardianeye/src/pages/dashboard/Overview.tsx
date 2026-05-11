@@ -5,7 +5,7 @@ import { Link } from "wouter";
 import { useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from "recharts";
-import { useListAlerts } from "@workspace/api-client-react";
+import { useListAlerts, queryOpts } from "@workspace/api-client-react";
 
 const sampleHourly = Array.from({ length: 12 }, (_, i) => ({
   hour: `${(i * 2).toString().padStart(2, "0")}:00`,
@@ -22,7 +22,7 @@ const Overview = () => {
     if (children.length && !selectedId) setSelectedId(children[0].id);
   }, [children, selectedId, setSelectedId]);
 
-  const { data: alerts = [] } = useListAlerts(selected?.id ?? "", { query: { enabled: !!selected?.id } as any });
+  const { data: alerts = [] } = useListAlerts(selected?.id ?? "", { query: queryOpts({ enabled: !!selected?.id }) });
 
   if (children.length === 0) return <EmptyState onAdded={refresh} />;
   if (!selected) return null;

@@ -11,7 +11,7 @@ import { formatDistanceToNow } from "date-fns";
 import { EmptyChildPrompt } from "./Apps";
 import {
   useListDevices, useCreateDevice, useDeleteDevice,
-  getListDevicesQueryKey,
+  getListDevicesQueryKey, queryOpts,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -23,7 +23,7 @@ const Devices = () => {
   const [deviceName, setDeviceName] = useState("");
   const [pairingCode, setPairingCode] = useState<string | null>(null);
 
-  const { data: devices = [] } = useListDevices(selectedId!, { query: { enabled: !!selectedId } as any });
+  const { data: devices = [] } = useListDevices(selectedId!, { query: queryOpts({ enabled: !!selectedId }) });
   const createDevice = useCreateDevice();
   const deleteDevice = useDeleteDevice();
 

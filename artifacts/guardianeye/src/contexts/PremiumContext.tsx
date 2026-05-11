@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGetMyProfile } from "@workspace/api-client-react";
+import { useGetMyProfile, queryOpts } from "@workspace/api-client-react";
 
 type Tier = "basic" | "premium";
 
@@ -30,7 +30,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [feature, setFeature] = useState<string | null>(null);
 
-  const { data: profile } = useGetMyProfile({ query: { enabled: !!user } as any });
+  const { data: profile } = useGetMyProfile({ query: queryOpts({ enabled: !!user }) });
 
   const serverTier: Tier = profile?.subscription_tier === "premium" ? "premium" : "basic";
   const tier: Tier = demoTier ?? serverTier;

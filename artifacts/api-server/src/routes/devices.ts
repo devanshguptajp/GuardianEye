@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, devices, children } from "@workspace/db";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { requireAuth, getUserId } from "../lib/auth";
 import crypto from "crypto";
 
@@ -24,6 +24,12 @@ router.get("/children/:childId/devices", requireAuth, async (req, res) => {
 router.post("/children/:childId/devices", requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const childId = String(req.params["childId"]);
+
+  const child = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parent_id, userId)),
+  });
+  if (!child) return res.status(404).json({ error: "Not found" });
+
   const { device_name, platform } = req.body;
   if (!device_name) return res.status(400).json({ error: "device_name required" });
 

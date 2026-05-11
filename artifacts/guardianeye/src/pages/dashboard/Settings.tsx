@@ -9,7 +9,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { Crown, ShieldCheck, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 import { DeleteChildSection } from "@/components/settings/DeleteChildSection";
-import { useGetMyProfile, useUpdateMyProfile } from "@workspace/api-client-react";
+import { useGetMyProfile, useUpdateMyProfile, queryOpts } from "@workspace/api-client-react";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -19,7 +19,7 @@ const Settings = () => {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const { data: profile } = useGetMyProfile({ query: { enabled: !!user } as any });
+  const { data: profile } = useGetMyProfile({ query: queryOpts({ enabled: !!user }) });
   const updateProfile = useUpdateMyProfile();
 
   useEffect(() => {

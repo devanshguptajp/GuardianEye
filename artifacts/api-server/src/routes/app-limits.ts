@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, app_limits, children } from "@workspace/db";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { requireAuth, getUserId } from "../lib/auth";
 
 const router = Router();
@@ -23,6 +23,12 @@ router.get("/children/:childId/app-limits", requireAuth, async (req, res) => {
 router.post("/children/:childId/app-limits", requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const childId = String(req.params["childId"]);
+
+  const child = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parent_id, userId)),
+  });
+  if (!child) return res.status(404).json({ error: "Not found" });
+
   const { app_name, package_id, daily_minutes, blocked } = req.body;
   if (!app_name) return res.status(400).json({ error: "app_name required" });
 

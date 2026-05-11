@@ -10,7 +10,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumBadge } from "@/components/premium/PremiumGate";
 import {
   useListWebBlocklist, useAddWebBlocklistEntry, useDeleteWebBlocklistEntry,
-  getListWebBlocklistQueryKey,
+  getListWebBlocklistQueryKey, queryOpts,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -23,7 +23,7 @@ const Web = () => {
   const queryClient = useQueryClient();
   const [domain, setDomain] = useState("");
 
-  const { data: items = [] } = useListWebBlocklist(selectedId!, { query: { enabled: !!selectedId } as any });
+  const { data: items = [] } = useListWebBlocklist(selectedId!, { query: queryOpts({ enabled: !!selectedId }) });
   const addEntry = useAddWebBlocklistEntry();
   const deleteEntry = useDeleteWebBlocklistEntry();
 

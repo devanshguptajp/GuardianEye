@@ -11,7 +11,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumBadge } from "@/components/premium/PremiumGate";
 import {
   useListAppLimits, useCreateAppLimit, useUpdateAppLimit, useDeleteAppLimit,
-  getListAppLimitsQueryKey,
+  getListAppLimitsQueryKey, queryOpts,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -22,7 +22,7 @@ const Apps = () => {
   const queryClient = useQueryClient();
   const [appName, setAppName] = useState("");
 
-  const { data: items = [] } = useListAppLimits(selectedId!, { query: { enabled: !!selectedId } as any });
+  const { data: items = [] } = useListAppLimits(selectedId!, { query: queryOpts({ enabled: !!selectedId }) });
   const createLimit = useCreateAppLimit();
   const updateLimit = useUpdateAppLimit();
   const deleteLimit = useDeleteAppLimit();

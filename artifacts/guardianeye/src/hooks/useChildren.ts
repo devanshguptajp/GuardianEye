@@ -1,4 +1,4 @@
-import { useListChildren } from "@workspace/api-client-react";
+import { useListChildren, queryOpts } from "@workspace/api-client-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { getListChildrenQueryKey } from "@workspace/api-client-react";
@@ -14,7 +14,7 @@ export interface Child {
 export const useChildren = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { data, isLoading } = useListChildren({ query: { enabled: !!user } as any });
+  const { data, isLoading } = useListChildren({ query: queryOpts({ enabled: !!user }) });
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: getListChildrenQueryKey() });

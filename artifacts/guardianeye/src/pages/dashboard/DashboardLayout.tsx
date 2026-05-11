@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChildren } from "@/hooks/useChildren";
-import { useGetMyProfile } from "@workspace/api-client-react";
+import { useGetMyProfile, queryOpts } from "@workspace/api-client-react";
 import {
   LayoutDashboard, Smartphone, Globe, MapPin, Bell, Settings, LogOut,
   Moon, Sun, Menu, Shield,
@@ -31,7 +31,7 @@ const DashboardLayout = ({ children: pageContent }: { children?: React.ReactNode
   const { theme, toggle } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { data: profile } = useGetMyProfile({ query: { enabled: !!user } as any });
+  const { data: profile } = useGetMyProfile({ query: queryOpts({ enabled: !!user }) });
   const profileName = profile?.display_name ?? user?.name ?? user?.email?.split("@")[0] ?? "";
 
   const handleSignOut = async () => {

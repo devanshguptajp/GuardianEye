@@ -3,7 +3,7 @@ import { Link, useParams } from "wouter";
 import { Logo } from "@/components/Logo";
 import { ArrowLeft, Lock, Clock, ShieldCheck, Smartphone, Globe, Eye } from "lucide-react";
 import { usePremium } from "@/contexts/PremiumContext";
-import { useGetChild, useListAppLimits, useListWebBlocklist } from "@workspace/api-client-react";
+import { useGetChild, useListAppLimits, useListWebBlocklist, queryOpts } from "@workspace/api-client-react";
 
 const ChildView = () => {
   const params = useParams<{ childId: string }>();
@@ -16,9 +16,9 @@ const ChildView = () => {
     return () => clearInterval(t);
   }, []);
 
-  const { data: child } = useGetChild(childId!, { query: { enabled: !!childId } as any });
-  const { data: apps = [] } = useListAppLimits(childId!, { query: { enabled: !!childId } as any });
-  const { data: blocks = [] } = useListWebBlocklist(childId!, { query: { enabled: !!childId } as any });
+  const { data: child } = useGetChild(childId!, { query: queryOpts({ enabled: !!childId }) });
+  const { data: apps = [] } = useListAppLimits(childId!, { query: queryOpts({ enabled: !!childId }) });
+  const { data: blocks = [] } = useListWebBlocklist(childId!, { query: queryOpts({ enabled: !!childId }) });
 
   const usedFor = (a: typeof apps[0]) => {
     const seed = a.id.charCodeAt(0) + a.id.charCodeAt(1);

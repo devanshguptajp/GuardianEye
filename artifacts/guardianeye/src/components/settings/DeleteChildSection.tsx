@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSelectedChild } from "@/contexts/SelectedChildContext";
 import {
-  useGetMyProfile, useSetPin, useVerifyPin, useDeleteChild, getListChildrenQueryKey,
+  useGetMyProfile, useSetPin, useVerifyPin, useDeleteChild, getListChildrenQueryKey, queryOpts,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -28,7 +28,7 @@ export const DeleteChildSection = () => {
   const { selectedId, setSelectedId } = useSelectedChild();
   const queryClient = useQueryClient();
 
-  const { data: profile } = useGetMyProfile({ query: { enabled: !!user } as any });
+  const { data: profile } = useGetMyProfile({ query: queryOpts({ enabled: !!user }) });
   const setPin = useSetPin();
   const verifyPin = useVerifyPin();
   const deleteChild = useDeleteChild();

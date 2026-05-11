@@ -37,13 +37,18 @@ router.get("/children/:childId", requireAuth, async (req, res) => {
 router.delete("/children/:childId", requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const childId = String(req.params["childId"]);
-  await Promise.all([
-    db.delete(alerts).where(eq(alerts.child_id, childId)),
-    db.delete(app_limits).where(eq(app_limits.child_id, childId)),
-    db.delete(devices).where(eq(devices.child_id, childId)),
-    db.delete(web_blocklist).where(eq(web_blocklist.child_id, childId)),
-  ]);
+
+  const child = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parent_id, userId)),
+  });
+  if (!child) return res.status(404).json({ error: "Not found" });
+
+  await db.delete(alerts).where(and(eq(alerts.child_id, childId), eq(alerts.parent_id, userId)));
+  await db.delete(app_limits).where(and(eq(app_limits.child_id, childId), eq(app_limits.parent_id, userId)));
+  await db.delete(devices).where(and(eq(devices.child_id, childId), eq(devices.parent_id, userId)));
+  await db.delete(web_blocklist).where(and(eq(web_blocklist.child_id, childId), eq(web_blocklist.parent_id, userId)));
   await db.delete(children).where(and(eq(children.id, childId), eq(children.parent_id, userId)));
+
   return res.json({ success: true });
 });
 

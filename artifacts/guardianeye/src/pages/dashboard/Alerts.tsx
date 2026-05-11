@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { EmptyChildPrompt } from "./Apps";
 import { PremiumGate } from "@/components/premium/PremiumGate";
-import { useListAlerts, useMarkAlertRead, getListAlertsQueryKey } from "@workspace/api-client-react";
+import { useListAlerts, useMarkAlertRead, getListAlertsQueryKey, queryOpts } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const Alerts = () => {
   const { selectedId } = useSelectedChild();
   const queryClient = useQueryClient();
-  const { data: items = [] } = useListAlerts(selectedId!, { query: { enabled: !!selectedId } as any });
+  const { data: items = [] } = useListAlerts(selectedId!, { query: queryOpts({ enabled: !!selectedId }) });
   const markRead = useMarkAlertRead();
 
   const handleMarkRead = (id: string) => {
