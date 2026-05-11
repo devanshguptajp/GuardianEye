@@ -11,7 +11,6 @@ import { Plus, Smartphone, Trash2, Lock, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumBadge } from "@/components/premium/PremiumGate";
-import { Link } from "react-router-dom";
 
 const Apps = () => {
   const { selectedId } = useSelectedChild();
@@ -56,16 +55,9 @@ const Apps = () => {
 
   return (
     <div className="p-6 lg:p-10 space-y-6 animate-fade-in">
-      <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="font-display text-3xl font-bold">App limits</h1>
-          <p className="text-muted-foreground mt-1">Set daily time or block apps entirely.</p>
-        </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to={`/child/${selectedId}`} target="_blank">
-            <Smartphone className="h-4 w-4 mr-2" /> Preview as child
-          </Link>
-        </Button>
+      <header>
+        <h1 className="font-display text-3xl font-bold">App limits</h1>
+        <p className="text-muted-foreground mt-1">Set daily time or block apps entirely.</p>
       </header>
 
       <div className={`ge-card p-4 flex items-start sm:items-center gap-3 ${isPremium ? "border-accent/40 bg-accent/5" : ""}`}>

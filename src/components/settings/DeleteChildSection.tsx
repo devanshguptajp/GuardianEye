@@ -31,6 +31,7 @@ export const DeleteChildSection = () => {
 
   const [pinSet, setPinSet] = useState<boolean>(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [oldPin, setOldPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [newPin2, setNewPin2] = useState("");
 
@@ -52,13 +53,24 @@ export const DeleteChildSection = () => {
     if (!user) return;
     if (!/^\d{4,8}$/.test(newPin)) return toast({ title: "PIN must be 4–8 digits", variant: "destructive" });
     if (newPin !== newPin2) return toast({ title: "PINs don't match", variant: "destructive" });
+
+    // If a PIN already exists, require the old one first.
+    if (pinSet) {
+      if (!/^\d{4,8}$/.test(oldPin)) return toast({ title: "Enter your current PIN", variant: "destructive" });
+      const { data: prof } = await supabase.from("profiles").select("pin_hash").eq("id", user.id).maybeSingle();
+      const oldH = await hashPin(user.id, oldPin);
+      if (!prof?.pin_hash || prof.pin_hash !== oldH) {
+        return toast({ title: "Current PIN is incorrect", variant: "destructive" });
+      }
+    }
+
     const h = await hashPin(user.id, newPin);
     const { error } = await supabase.from("profiles").update({ pin_hash: h }).eq("id", user.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     setPinSet(true);
     setPinDialogOpen(false);
-    setNewPin(""); setNewPin2("");
-    toast({ title: "Parent PIN saved" });
+    setOldPin(""); setNewPin(""); setNewPin2("");
+    toast({ title: "Parent PIN updated" });
   };
 
   const openConfirm = () => {
@@ -108,18 +120,22 @@ export const DeleteChildSection = () => {
         <h2 className="font-display font-semibold">Danger zone</h2>
       </div>
 
-      {/* Parent PIN setup */}
+      {/* Parent PIN management */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 text-sm">
           <KeyRound className="h-4 w-4 text-muted-foreground" />
           Parent PIN: <span className={pinSet ? "text-success font-medium" : "text-warning font-medium"}>
-            {pinSet ? "set" : "not set"}
+            {pinSet ? "active" : "missing — set one now"}
           </span>
         </div>
         <Button variant="outline" size="sm" onClick={() => setPinDialogOpen(true)}>
           {pinSet ? "Change PIN" : "Set PIN"}
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground -mt-2">
+        Your PIN approves sensitive actions: changing time limits or settings from your child's phone,
+        granting extra time, and unlocking parent mode.
+      </p>
 
       <div className="border-t border-border pt-4 space-y-3">
         <div>
@@ -153,16 +169,27 @@ export const DeleteChildSection = () => {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{pinSet ? "Change Parent PIN" : "Set Parent PIN"}</DialogTitle>
-            <DialogDescription>4–8 digits. Required for sensitive actions like deleting a child.</DialogDescription>
+            <DialogDescription>
+              {pinSet
+                ? "Enter your current PIN, then choose a new 4–8 digit PIN."
+                : "Choose a 4–8 digit PIN. You'll need it to approve sensitive actions."}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {pinSet && (
+              <div>
+                <Label htmlFor="op">Current PIN</Label>
+                <Input id="op" type="password" inputMode="numeric" maxLength={8} value={oldPin}
+                  onChange={(e) => setOldPin(e.target.value.replace(/\D/g, ""))} className="mt-1.5" autoFocus />
+              </div>
+            )}
             <div>
               <Label htmlFor="np">New PIN</Label>
               <Input id="np" type="password" inputMode="numeric" maxLength={8} value={newPin}
                 onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))} className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="np2">Confirm PIN</Label>
+              <Label htmlFor="np2">Confirm new PIN</Label>
               <Input id="np2" type="password" inputMode="numeric" maxLength={8} value={newPin2}
                 onChange={(e) => setNewPin2(e.target.value.replace(/\D/g, ""))} className="mt-1.5" />
             </div>
