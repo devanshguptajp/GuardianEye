@@ -17,7 +17,14 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const hashPin = async (parentId: string, p: string) => {
+    const enc = new TextEncoder().encode(`${parentId}:${p}`);
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  };
 
   useEffect(() => {
     document.title = mode === "signup" ? "Create account · GuardianEye" : "Sign in · GuardianEye";
@@ -28,11 +35,20 @@ const Auth = () => {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        if (!/^\d{4,8}$/.test(pin)) {
+          setBusy(false);
+          return toast({ title: "Parent PIN required", description: "Choose a 4–8 digit PIN.", variant: "destructive" });
+        }
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: `${window.location.origin}/app`, data: { display_name: name } },
         });
         if (error) throw error;
+        const uid = data.user?.id;
+        if (uid) {
+          const h = await hashPin(uid, pin);
+          await supabase.from("profiles").update({ pin_hash: h }).eq("id", uid);
+        }
         toast({ title: "Welcome aboard 👋", description: "Account created. Let's set up your first child." });
         navigate("/app");
       } else {
