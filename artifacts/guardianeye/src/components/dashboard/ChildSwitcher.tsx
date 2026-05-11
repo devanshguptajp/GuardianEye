@@ -10,7 +10,7 @@ import { useSelectedChild } from "@/contexts/SelectedChildContext";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumBadge } from "@/components/premium/PremiumGate";
 import type { Child } from "@/hooks/useChildren";
-import { useCreateChild, getListChildrenQueryKey } from "@workspace/api-client-react";
+import { useCreateChild, getListChildrenQueryKey, type CreateChildMutationResult, type CreateChildMutationError } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const ChildSwitcher = ({ children, onChildrenChange }: { children: Child[]; onChildrenChange: () => void }) => {
@@ -30,14 +30,14 @@ export const ChildSwitcher = ({ children, onChildrenChange }: { children: Child[
     createChild.mutate(
       { data: { name, birth_year: year ? parseInt(year) : undefined } },
       {
-        onSuccess: (data: any) => {
+        onSuccess: (data: CreateChildMutationResult) => {
           setName(""); setYear(""); setOpen(false);
           queryClient.invalidateQueries({ queryKey: getListChildrenQueryKey() });
           onChildrenChange();
           if (data?.id) setSelectedId(data.id);
           toast({ title: "Child added", description: `${data?.name} is ready to be paired.` });
         },
-        onError: (err: any) => {
+        onError: (err: CreateChildMutationError) => {
           toast({ title: "Could not add", description: err.message, variant: "destructive" });
         },
       },

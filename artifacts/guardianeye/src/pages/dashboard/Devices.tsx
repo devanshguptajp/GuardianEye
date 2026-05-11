@@ -11,7 +11,7 @@ import { formatDistanceToNow } from "date-fns";
 import { EmptyChildPrompt } from "./Apps";
 import {
   useListDevices, useCreateDevice, useDeleteDevice,
-  getListDevicesQueryKey, queryOpts,
+  getListDevicesQueryKey, queryOpts, type CreateDeviceMutationResult, type CreateDeviceMutationError,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -35,12 +35,12 @@ const Devices = () => {
     createDevice.mutate(
       { childId: selectedId, data: { device_name: deviceName || "New device" } },
       {
-        onSuccess: (data: any) => {
-          setPairingCode(data.pairing_code);
+        onSuccess: (data: CreateDeviceMutationResult) => {
+          setPairingCode(data.pairing_code ?? null);
           setDeviceName("");
           invalidate();
         },
-        onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
+        onError: (err: CreateDeviceMutationError) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
       },
     );
   };

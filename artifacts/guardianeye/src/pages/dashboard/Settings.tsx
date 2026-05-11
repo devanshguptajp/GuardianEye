@@ -9,7 +9,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { Crown, ShieldCheck, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 import { DeleteChildSection } from "@/components/settings/DeleteChildSection";
-import { useGetMyProfile, useUpdateMyProfile, queryOpts } from "@workspace/api-client-react";
+import { useGetMyProfile, useUpdateMyProfile, queryOpts, type UpdateMyProfileMutationError } from "@workspace/api-client-react";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -30,7 +30,7 @@ const Settings = () => {
     setBusy(true);
     updateProfile.mutate({ data: { display_name: name } }, {
       onSuccess: () => { setBusy(false); toast({ title: "Saved" }); },
-      onError: (err: any) => { setBusy(false); toast({ title: "Failed", description: err.message, variant: "destructive" }); },
+      onError: (err: UpdateMyProfileMutationError) => { setBusy(false); toast({ title: "Failed", description: err.message, variant: "destructive" }); },
     });
   };
 

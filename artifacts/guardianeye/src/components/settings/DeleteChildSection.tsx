@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSelectedChild } from "@/contexts/SelectedChildContext";
 import {
   useGetMyProfile, useSetPin, useVerifyPin, useDeleteChild, getListChildrenQueryKey, queryOpts,
+  type SetPinMutationError, type VerifyPinMutationResult, type DeleteChildMutationError,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -67,7 +68,7 @@ export const DeleteChildSection = () => {
         setOldPin(""); setNewPin(""); setNewPin2("");
         toast({ title: "Parent PIN updated" });
       },
-      onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
+      onError: (err: SetPinMutationError) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
     });
   };
 
@@ -99,7 +100,7 @@ export const DeleteChildSection = () => {
         refresh();
         toast({ title: "Child profile deleted" });
       },
-      onError: (err: any) => {
+      onError: (err: DeleteChildMutationError) => {
         setBusy(false);
         toast({ title: "Failed", description: err.message, variant: "destructive" });
       },

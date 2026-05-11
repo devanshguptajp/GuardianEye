@@ -11,7 +11,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumBadge } from "@/components/premium/PremiumGate";
 import {
   useListAppLimits, useCreateAppLimit, useUpdateAppLimit, useDeleteAppLimit,
-  getListAppLimitsQueryKey, queryOpts,
+  getListAppLimitsQueryKey, queryOpts, type CreateAppLimitMutationError,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -36,7 +36,7 @@ const Apps = () => {
       { childId: selectedId, data: { app_name: appName, daily_minutes: 60 } },
       {
         onSuccess: () => { setAppName(""); invalidate(); },
-        onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
+        onError: (err: CreateAppLimitMutationError) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
       },
     );
   };

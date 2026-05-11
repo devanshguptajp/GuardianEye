@@ -10,7 +10,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumBadge } from "@/components/premium/PremiumGate";
 import {
   useListWebBlocklist, useAddWebBlocklistEntry, useDeleteWebBlocklistEntry,
-  getListWebBlocklistQueryKey, queryOpts,
+  getListWebBlocklistQueryKey, queryOpts, type AddWebBlocklistEntryMutationError,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -34,7 +34,7 @@ const Web = () => {
     if (!selectedId || !domain) return;
     addEntry.mutate({ childId: selectedId, data: { domain } }, {
       onSuccess: () => { setDomain(""); invalidate(); },
-      onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
+      onError: (err: AddWebBlocklistEntryMutationError) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
     });
   };
 
