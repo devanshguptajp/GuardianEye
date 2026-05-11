@@ -11,8 +11,6 @@ import { PinInput } from "@/components/PinInput";
 import { Logo } from "@/components/Logo";
 import { QRCodeSVG } from "qrcode.react";
 
-const storageKey = (userId: string) => `ge_welcomed_${userId}`;
-
 type Step = "name" | "pin" | "add_child" | "done";
 const STEPS: Step[] = ["name", "pin", "add_child", "done"];
 
@@ -49,19 +47,12 @@ export const OnboardingModal = () => {
   }, [profile?.display_name, suggested]);
 
   useEffect(() => {
-    if (!isSuccess || !user) return undefined;
-    const already = localStorage.getItem(storageKey(user.id));
-    if (!already && children.length === 0) {
-      const timer = setTimeout(() => setOpen(true), 600);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
+    if (!isSuccess || !user || children.length !== 0) return;
+    const timer = setTimeout(() => setOpen(true), 700);
+    return () => clearTimeout(timer);
   }, [isSuccess, children, user]);
 
-  const finish = () => {
-    if (user) localStorage.setItem(storageKey(user.id), "1");
-    setOpen(false);
-  };
+  const finish = () => setOpen(false);
 
   const handleNameNext = () => {
     if (!displayName.trim()) return;
@@ -142,7 +133,7 @@ export const OnboardingModal = () => {
               <div className="text-xs text-muted-foreground mt-1">
                 {step === "name" && "Your 14-day free Pro trial has started"}
                 {step === "pin" && "Secure your dashboard with a PIN"}
-                {step === "add_child" && pairUrl ? "Scan the QR to pair their device" : "Enter your child's name to get started"}
+                {step === "add_child" && (pairUrl ? "Scan the QR to pair their device" : "Enter your child's name to get started")}
                 {step === "done" && "Let's start protecting your family"}
               </div>
             </div>
@@ -167,10 +158,7 @@ export const OnboardingModal = () => {
                 <div className="h-8 w-8 rounded-lg bg-gradient-primary/15 grid place-items-center shrink-0">
                   <User className="h-4 w-4 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-muted-foreground mb-1">What should we call you?</div>
-                  <div className="text-sm text-muted-foreground">This is your display name in the dashboard.</div>
-                </div>
+                <div className="text-sm text-muted-foreground">What should we call you? This shows in your dashboard.</div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="onboard-name">Your name</Label>
@@ -182,7 +170,6 @@ export const OnboardingModal = () => {
                   autoFocus
                   onKeyDown={(e) => e.key === "Enter" && handleNameNext()}
                 />
-                <p className="text-[11px] text-muted-foreground">Auto-filled from your account — you can change this any time in Settings.</p>
               </div>
               <Button
                 className="w-full bg-gradient-primary text-primary-foreground"
@@ -201,7 +188,7 @@ export const OnboardingModal = () => {
                   <Lock className="h-4 w-4 text-accent" />
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  A PIN keeps your parent dashboard private. Required to access settings on a child's device.
+                  A PIN keeps your parent dashboard private on a shared device.
                 </div>
               </div>
 
@@ -231,7 +218,7 @@ export const OnboardingModal = () => {
                 {busy ? "Saving…" : "Save PIN"} <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
               <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={handleSkipPin}>
-                Skip for now (you can set it in Settings)
+                Skip for now (set it later in Settings)
               </Button>
             </>
           )}
@@ -264,10 +251,10 @@ export const OnboardingModal = () => {
                     disabled={!childName.trim() || busy}
                     onClick={handleAddChild}
                   >
-                    {busy ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating…</> : <><Plus className="h-4 w-4 mr-1.5" /> Add child & generate QR</>}
+                    {busy ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating…</> : <><Plus className="h-4 w-4 mr-1.5" /> Add child &amp; generate QR</>}
                   </Button>
                   <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={handleSkipChild}>
-                    Skip — I'll add a child from the dashboard
+                    Skip — I'll add from the dashboard
                   </Button>
                 </>
               ) : (

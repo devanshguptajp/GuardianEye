@@ -22,21 +22,21 @@ type FocusModeType = "internet_blocked" | "homework" | "focus";
 const FOCUS_MODES: { mode: FocusModeType; label: string; activeLabel: string; icon: typeof WifiOff; color: string; activeColor: string; desc: string; duration?: number }[] = [
   {
     mode: "internet_blocked",
-    label: "Instant Internet Block",
+    label: "Block Internet",
     activeLabel: "Internet Blocked",
     icon: WifiOff,
     color: "bg-destructive/10 text-destructive border-destructive/30",
     activeColor: "bg-destructive text-destructive-foreground border-destructive shadow-glow",
-    desc: "Blocks all internet access immediately.",
+    desc: "Blocks all internet now.",
   },
   {
     mode: "homework",
     label: "Homework Time",
-    activeLabel: "Homework Time On",
+    activeLabel: "Homework On",
     icon: BookOpen,
     color: "bg-warning/10 text-warning border-warning/30",
     activeColor: "bg-warning text-warning-foreground border-warning shadow-glow",
-    desc: "Blocks social & gaming apps for 60 min.",
+    desc: "Blocks social & games for 60 min.",
     duration: 60,
   },
   {
@@ -46,7 +46,7 @@ const FOCUS_MODES: { mode: FocusModeType; label: string; activeLabel: string; ic
     icon: Focus,
     color: "bg-accent/10 text-accent border-accent/30",
     activeColor: "bg-accent text-accent-foreground border-accent shadow-glow",
-    desc: "Blocks all non-educational apps for 30 min.",
+    desc: "Blocks non-educational for 30 min.",
     duration: 30,
   },
 ];
@@ -76,7 +76,7 @@ const Overview = () => {
   const currentMode = childDetail?.focus_mode as FocusModeType | null | undefined;
 
   const stats = [
-    { icon: Clock, label: "Today's screen time", value: "3h 24m", change: "−18%", positive: true },
+    { icon: Clock, label: "Screen time", value: "3h 24m", change: "−18%", positive: true },
     { icon: Smartphone, label: "Apps used", value: "12", change: "+2" },
     { icon: Globe, label: "Sites visited", value: "47", change: "−8" },
     { icon: AlertTriangle, label: "AI alerts", value: alerts.filter(a => a.severity !== "info").length.toString(), change: "live" },
@@ -107,36 +107,35 @@ const Overview = () => {
   };
 
   return (
-    <div className="p-6 lg:p-10 space-y-8 animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-10 space-y-6 animate-fade-in">
       <header>
         <p className="text-sm text-muted-foreground">Welcome back</p>
-        <h1 className="font-display text-3xl lg:text-4xl font-bold mt-1">
-          Here's how <span className="ge-gradient-text">{selected.name}</span> is doing today.
+        <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold mt-1 leading-tight">
+          Here's how <span className="ge-gradient-text">{selected.name}</span> is doing.
         </h1>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => (
-          <div key={s.label} className="ge-card p-5">
+          <div key={s.label} className="ge-card p-4">
             <div className="flex items-center justify-between">
-              <div className="h-10 w-10 rounded-xl bg-gradient-primary/10 grid place-items-center">
-                <s.icon className="h-5 w-5 text-primary" />
+              <div className="h-9 w-9 rounded-xl bg-gradient-primary/10 grid place-items-center">
+                <s.icon className="h-4 w-4 text-primary" />
               </div>
-              <span className={`text-xs font-medium ${s.positive ? "text-success" : "text-muted-foreground"}`}>{s.change}</span>
+              <span className={`text-xs font-medium ${s.positive ? "text-accent" : "text-muted-foreground"}`}>{s.change}</span>
             </div>
-            <div className="mt-4 font-display text-2xl font-bold">{s.value}</div>
-            <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
+            <div className="mt-3 font-display text-xl sm:text-2xl font-bold">{s.value}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{s.label}</div>
           </div>
         ))}
       </section>
 
-      {/* Quick Actions */}
       <section>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <h2 className="font-display font-semibold">Quick actions</h2>
           <span className="text-xs text-muted-foreground">Tap to toggle for {selected.name}</span>
         </div>
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {FOCUS_MODES.map((m) => {
             const isActive = currentMode === m.mode;
             const isLoading = togglingMode === m.mode;
@@ -145,15 +144,15 @@ const Overview = () => {
                 key={m.mode}
                 onClick={() => handleFocusToggle(m)}
                 disabled={isLoading}
-                className={`ge-card p-4 flex items-start gap-3 text-left border transition-all hover:-translate-y-0.5 active:scale-95 ${isActive ? m.activeColor : m.color} ${isLoading ? "opacity-70 cursor-wait" : "cursor-pointer"}`}
+                className={`ge-card p-4 flex items-center gap-3 text-left border transition-all active:scale-95 ${isActive ? m.activeColor : m.color} ${isLoading ? "opacity-70 cursor-wait" : "cursor-pointer"}`}
               >
                 <div className={`h-9 w-9 rounded-xl grid place-items-center shrink-0 ${isActive ? "bg-white/20" : "bg-current/10"}`}>
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <m.icon className="h-4 w-4" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm">{isActive ? m.activeLabel : m.label}</div>
-                  <div className={`text-xs mt-0.5 ${isActive ? "opacity-80" : "opacity-70"}`}>{m.desc}</div>
-                  {isActive && <div className="text-[10px] mt-1 font-medium uppercase tracking-wide opacity-80">Active — tap to turn off</div>}
+                  <div className={`text-xs mt-0.5 ${isActive ? "opacity-80" : "opacity-70"} line-clamp-1`}>{m.desc}</div>
+                  {isActive && <div className="text-[10px] mt-0.5 font-medium uppercase tracking-wide opacity-80">Tap to turn off</div>}
                 </div>
               </button>
             );
@@ -167,16 +166,16 @@ const Overview = () => {
         )}
       </section>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="ge-card p-6 lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
+      <div className="grid lg:grid-cols-3 gap-5">
+        <div className="ge-card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <div>
               <h3 className="font-display font-semibold">Screen time today</h3>
               <p className="text-xs text-muted-foreground">Minutes per 2-hour block</p>
             </div>
             <div className="text-xs text-muted-foreground">Sample data</div>
           </div>
-          <div className="h-64">
+          <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={sampleHourly}>
                 <defs>
@@ -185,22 +184,22 @@ const Overview = () => {
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12 }} />
+                <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} width={28} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }} />
                 <Area type="monotone" dataKey="minutes" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#g1)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="ge-card p-6">
+        <div className="ge-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display font-semibold">Recent alerts</h3>
             <Link to="/app/alerts" className="text-xs text-primary hover:underline">View all</Link>
           </div>
           {recentAlerts.length === 0 ? (
-            <div className="text-center py-10 text-sm text-muted-foreground">
+            <div className="text-center py-8 text-sm text-muted-foreground">
               <Sparkles className="h-8 w-8 mx-auto mb-2 opacity-50" />
               No alerts. All good.
             </div>
@@ -215,7 +214,7 @@ const Overview = () => {
                     <Bell className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{a.title}</div>
+                    <div className="font-medium truncate text-xs sm:text-sm">{a.title}</div>
                     <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}</div>
                   </div>
                 </li>
@@ -225,18 +224,18 @@ const Overview = () => {
         </div>
       </div>
 
-      <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { to: "/app/apps", icon: Smartphone, label: "Set app limits" },
-          { to: "/app/web", icon: Globe, label: "Block websites" },
-          { to: "/app/location", icon: MapPin, label: "View location" },
-          { to: "/app/devices", icon: Sparkles, label: "Pair new device" },
+          { to: "/app/apps", icon: Smartphone, label: "App limits" },
+          { to: "/app/web", icon: Globe, label: "Block sites" },
+          { to: "/app/location", icon: MapPin, label: "Location" },
+          { to: "/app/devices", icon: Sparkles, label: "Pair device" },
         ].map((a) => (
-          <Link key={a.to} to={a.to} className="ge-card p-5 hover:border-primary/50 transition-all hover:-translate-y-0.5 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-primary text-primary-foreground grid place-items-center shadow-glow">
+          <Link key={a.to} to={a.to} className="ge-card p-4 hover:border-primary/50 transition-all active:scale-95 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
+            <div className="h-9 w-9 rounded-xl bg-gradient-primary text-primary-foreground grid place-items-center shadow-glow shrink-0">
               <a.icon className="h-4 w-4" />
             </div>
-            <span className="font-medium text-sm">{a.label}</span>
+            <span className="font-medium text-xs sm:text-sm">{a.label}</span>
           </Link>
         ))}
       </section>
@@ -252,7 +251,7 @@ const EmptyState = ({ onAdded }: { onAdded: () => void }) => (
       </div>
       <h2 className="font-display text-3xl font-bold">Let's get started</h2>
       <p className="mt-3 text-muted-foreground">Add your first child to set up monitoring, app limits and alerts.</p>
-      <p className="mt-6 text-sm text-muted-foreground">Use the <strong>+ Add child</strong> option in the sidebar above.</p>
+      <p className="mt-6 text-sm text-muted-foreground">Use the <strong>+ Add child</strong> option in the sidebar.</p>
     </div>
   </div>
 );

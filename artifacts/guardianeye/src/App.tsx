@@ -128,7 +128,7 @@ function AppRoutes() {
   return (
     <Switch>
       <Route path="/">
-        {loading ? null : user ? <Redirect to="/app" /> : <Landing />}
+        {!loading && user ? <Redirect to="/app" /> : <Landing />}
       </Route>
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
