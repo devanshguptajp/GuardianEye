@@ -1,13 +1,150 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Logo } from "@/components/Logo";
-import { ArrowLeft, Lock, Clock, ShieldCheck, Smartphone, Globe, Eye } from "lucide-react";
+import { Lock, Clock, ShieldCheck, Smartphone, Globe, User, Shield } from "lucide-react";
 import { usePremium } from "@/contexts/PremiumContext";
-import { useGetChild, useListAppLimits, useListWebBlocklist, queryOpts } from "@workspace/api-client-react";
+import { useGetChild, useListAppLimits, useListWebBlocklist, useVerifyPin, queryOpts } from "@workspace/api-client-react";
+import { Button } from "@/components/ui/button";
+import { PinInput } from "@/components/PinInput";
+
+type Role = "select" | "child" | "pin_gate";
 
 const ChildView = () => {
   const params = useParams<{ childId: string }>();
   const childId = params.childId;
+  const [role, setRole] = useState<Role>("select");
+  const [, setLocation] = useLocation();
+
+  const { data: child } = useGetChild(childId!, { query: queryOpts({ enabled: !!childId }) });
+
+  if (role === "select") {
+    return <RoleSelector childName={child?.name ?? "your child"} onChild={() => setRole("child")} onParent={() => setRole("pin_gate")} />;
+  }
+
+  if (role === "pin_gate") {
+    return <PinGate onSuccess={() => setLocation("/app")} onBack={() => setRole("select")} />;
+  }
+
+  return <ChildContent childId={childId!} childName={child?.name ?? ""} onSwitchRole={() => setRole("select")} />;
+};
+
+const RoleSelector = ({ childName, onChild, onParent }: { childName: string; onChild: () => void; onParent: () => void }) => (
+  <div className="min-h-screen ge-aurora flex items-center justify-center p-4">
+    <div className="w-full max-w-sm">
+      <div className="rounded-[2.5rem] border-8 border-foreground/10 bg-background shadow-2xl overflow-hidden">
+        <div className="px-6 pt-4 pb-2 flex items-center justify-between text-xs text-muted-foreground">
+          <span>{new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+          <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-accent" /> GuardianEye</span>
+        </div>
+
+        <div className="px-6 pt-6 pb-8 text-center space-y-6">
+          <div>
+            <div className="h-16 w-16 rounded-2xl bg-gradient-primary grid place-items-center text-primary-foreground font-bold text-2xl shadow-glow mx-auto">
+              {childName[0]?.toUpperCase() ?? "•"}
+            </div>
+            <div className="mt-3 font-display font-bold text-xl">Who is using this device?</div>
+            <div className="text-sm text-muted-foreground mt-1">Choose how you want to continue</div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={onChild}
+              className="w-full ge-card p-4 flex items-center gap-3 hover:border-primary/50 transition-all active:scale-95 text-left"
+            >
+              <div className="h-10 w-10 rounded-xl bg-gradient-primary/15 grid place-items-center shrink-0">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-semibold">I'm {childName}</div>
+                <div className="text-xs text-muted-foreground">Continue to child view</div>
+              </div>
+            </button>
+
+            <button
+              onClick={onParent}
+              className="w-full ge-card p-4 flex items-center gap-3 hover:border-accent/50 transition-all active:scale-95 text-left"
+            >
+              <div className="h-10 w-10 rounded-xl bg-accent/15 grid place-items-center shrink-0">
+                <Shield className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <div className="font-semibold">I'm a Parent</div>
+                <div className="text-xs text-muted-foreground">Requires parent PIN</div>
+              </div>
+            </button>
+          </div>
+
+          <div className="pt-2 border-t border-border/60">
+            <Logo />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const PinGate = ({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => void }) => {
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const verifyPin = useVerifyPin();
+
+  const tryPin = (p: string) => {
+    if (p.length < 4) return;
+    setError("");
+    setBusy(true);
+    verifyPin.mutate({ data: { pin_hash: btoa(p) } }, {
+      onSuccess: (r) => {
+        setBusy(false);
+        if (r.valid) {
+          onSuccess();
+        } else {
+          setAttempts((n) => n + 1);
+          setPin("");
+          setError(attempts >= 2 ? "Too many attempts. Try again later." : "Incorrect PIN. Please try again.");
+        }
+      },
+      onError: () => { setBusy(false); setError("Verification failed. Check your connection."); },
+    });
+  };
+
+  useEffect(() => {
+    if (pin.length === 4 || pin.length === 6) {
+      tryPin(pin);
+    }
+  }, [pin]);
+
+  return (
+    <div className="min-h-screen ge-aurora flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="rounded-[2.5rem] border-8 border-foreground/10 bg-background shadow-2xl overflow-hidden p-8 space-y-6 text-center">
+          <div>
+            <div className="h-14 w-14 rounded-2xl bg-accent/15 grid place-items-center mx-auto">
+              <Shield className="h-7 w-7 text-accent" />
+            </div>
+            <div className="mt-3 font-display font-bold text-lg">Parent access</div>
+            <div className="text-sm text-muted-foreground mt-1">Enter your parent PIN to continue</div>
+          </div>
+
+          <PinInput length={4} value={pin} onChange={setPin} autoFocus disabled={busy} />
+          {pin.length === 6 && <PinInput length={6} value={pin} onChange={setPin} autoFocus disabled={busy} />}
+
+          {error && <p className="text-destructive text-sm">{error}</p>}
+          {busy && <p className="text-muted-foreground text-sm">Verifying…</p>}
+
+          <div className="text-xs text-muted-foreground">Try 4 digits or 6 digits depending on your PIN length</div>
+
+          <Button variant="ghost" size="sm" onClick={onBack} className="w-full text-muted-foreground">
+            ← Back
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ChildContent = ({ childId, childName, onSwitchRole }: { childId: string; childName: string; onSwitchRole: () => void }) => {
   const { isPremium } = usePremium();
   const [now, setNow] = useState(new Date());
 
@@ -16,26 +153,25 @@ const ChildView = () => {
     return () => clearInterval(t);
   }, []);
 
-  const { data: child } = useGetChild(childId!, { query: queryOpts({ enabled: !!childId }) });
-  const { data: apps = [] } = useListAppLimits(childId!, { query: queryOpts({ enabled: !!childId }) });
-  const { data: blocks = [] } = useListWebBlocklist(childId!, { query: queryOpts({ enabled: !!childId }) });
+  const { data: apps = [] } = useListAppLimits(childId, { query: queryOpts({ enabled: !!childId }) });
+  const { data: blocks = [] } = useListWebBlocklist(childId, { query: queryOpts({ enabled: !!childId }) });
 
-  const usedFor = (a: typeof apps[0]) => {
+  const usedFor = (a: (typeof apps)[0]) => {
     const seed = a.id.charCodeAt(0) + a.id.charCodeAt(1);
-    return Math.min(a.daily_minutes, Math.round((seed % 100) / 100 * a.daily_minutes));
+    return Math.min(a.daily_minutes, Math.round(((seed % 100) / 100) * a.daily_minutes));
   };
 
-  const initial = child?.name?.[0]?.toUpperCase() ?? "•";
+  const initial = childName[0]?.toUpperCase() ?? "•";
 
   return (
     <div className="min-h-screen ge-aurora">
       <div className="bg-card/70 backdrop-blur border-b border-border/60">
         <div className="max-w-md mx-auto px-4 py-2 flex items-center justify-between text-xs">
-          <Link to="/app/apps" className="inline-flex items-center text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Parent view
-          </Link>
+          <button onClick={onSwitchRole} className="inline-flex items-center text-muted-foreground hover:text-foreground">
+            ← Switch role
+          </button>
           <span className="inline-flex items-center gap-1 text-muted-foreground">
-            <Eye className="h-3.5 w-3.5" /> Child preview
+            <ShieldCheck className="h-3.5 w-3.5 text-accent" /> Protected
           </span>
         </div>
       </div>
@@ -53,7 +189,7 @@ const ChildView = () => {
                 {initial}
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Hi {child?.name ?? ""},</div>
+                <div className="text-xs text-muted-foreground">Hi {childName},</div>
                 <div className="font-display font-semibold">Your day at a glance</div>
               </div>
             </div>
@@ -62,7 +198,9 @@ const ChildView = () => {
               isPremium ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground"
             }`}>
               {isPremium ? <Lock className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-              {isPremium ? "Auto-lock is on. Apps will pause when time is up." : "Time-up reminders only. Apps stay open."}
+              {isPremium
+                ? "Auto-lock is on. Apps will pause when your daily time is up."
+                : "Time-up reminders only. Your parent hasn't enabled auto-lock."}
             </div>
           </div>
 
@@ -82,7 +220,7 @@ const ChildView = () => {
                   const reached = !a.blocked && used >= a.daily_minutes;
                   const locked = a.blocked || (reached && isPremium);
                   return (
-                    <li key={a.id} className="ge-card p-3 flex items-center gap-3">
+                    <li key={a.id} className={`ge-card p-3 flex items-center gap-3 ${locked ? "opacity-80" : ""}`}>
                       <div className={`h-10 w-10 rounded-xl grid place-items-center text-sm font-bold ${
                         locked ? "bg-destructive/15 text-destructive" : "bg-gradient-primary/15 text-primary"
                       }`}>
@@ -96,8 +234,11 @@ const ChildView = () => {
                           </span>
                         </div>
                         <div className="mt-1.5 h-1.5 rounded-full bg-secondary overflow-hidden">
-                          <div className={`h-full ${locked ? "bg-destructive" : "bg-gradient-primary"}`} style={{ width: `${pct}%` }} />
+                          <div className={`h-full transition-all ${locked ? "bg-destructive" : "bg-gradient-primary"}`} style={{ width: `${pct}%` }} />
                         </div>
+                        {locked && isPremium && (
+                          <div className="mt-1 text-[10px] text-destructive">Daily limit reached — app is blocked until tomorrow</div>
+                        )}
                       </div>
                     </li>
                   );
@@ -127,7 +268,7 @@ const ChildView = () => {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
-          This is what {child?.name ?? "your child"} sees on their device.
+          This is what {childName} sees on their device.
         </p>
       </div>
     </div>

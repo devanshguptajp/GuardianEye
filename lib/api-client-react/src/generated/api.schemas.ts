@@ -23,6 +23,8 @@ export interface Profile {
   pin_hash?: string | null;
   subscription_tier: string;
   theme: string;
+  /** @nullable */
+  trial_ends_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -41,6 +43,7 @@ export interface PinVerifyResult {
 
 export interface Child {
   id: string;
+  parent_id: string;
   name: string;
   /** @nullable */
   avatar_url?: string | null;
@@ -48,21 +51,21 @@ export interface Child {
   birth_year?: number | null;
   /** @nullable */
   color?: string | null;
-  parent_id: string;
   created_at: string;
 }
 
 export interface ChildInput {
   name: string;
+  avatar_url?: string;
   birth_year?: number;
   color?: string;
 }
 
 export interface Alert {
   id: string;
+  parent_id: string;
   /** @nullable */
   child_id?: string | null;
-  parent_id: string;
   title: string;
   /** @nullable */
   description?: string | null;
@@ -73,8 +76,8 @@ export interface Alert {
 
 export interface AppLimit {
   id: string;
-  child_id: string;
   parent_id: string;
+  child_id: string;
   app_name: string;
   /** @nullable */
   package_id?: string | null;
@@ -91,15 +94,34 @@ export interface AppLimitInput {
 }
 
 export interface AppLimitUpdate {
-  app_name?: string;
   daily_minutes?: number;
   blocked?: boolean;
 }
 
+export interface AppUsageLog {
+  id: string;
+  parent_id: string;
+  child_id: string;
+  app_name: string;
+  /** @nullable */
+  package_id?: string | null;
+  date: string;
+  minutes_used: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppUsageLogInput {
+  app_name: string;
+  package_id?: string;
+  date: string;
+  minutes_used: number;
+}
+
 export interface Device {
   id: string;
-  child_id: string;
   parent_id: string;
+  child_id: string;
   /** @nullable */
   device_name?: string | null;
   /** @nullable */

@@ -21,6 +21,8 @@ import type {
   AppLimit,
   AppLimitInput,
   AppLimitUpdate,
+  AppUsageLog,
+  AppUsageLogInput,
   Child,
   ChildInput,
   ChildOverview,
@@ -1293,6 +1295,180 @@ export const useDeleteAppLimit = <
   TContext
 > => {
   return useMutation(getDeleteAppLimitMutationOptions(options));
+};
+
+/**
+ * @summary List app usage history for a child (persists after app limit deletion)
+ */
+export const getListAppUsageUrl = (childId: string) => {
+  return `/api/children/${childId}/app-usage`;
+};
+
+export const listAppUsage = async (
+  childId: string,
+  options?: RequestInit,
+): Promise<AppUsageLog[]> => {
+  return customFetch<AppUsageLog[]>(getListAppUsageUrl(childId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAppUsageQueryKey = (childId: string) => {
+  return [`/api/children/${childId}/app-usage`] as const;
+};
+
+export const getListAppUsageQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAppUsage>>,
+  TError = ErrorType<unknown>,
+>(
+  childId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAppUsage>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAppUsageQueryKey(childId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listAppUsage>>> = ({
+    signal,
+  }) => listAppUsage(childId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!childId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAppUsage>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAppUsageQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAppUsage>>
+>;
+export type ListAppUsageQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List app usage history for a child (persists after app limit deletion)
+ */
+
+export function useListAppUsage<
+  TData = Awaited<ReturnType<typeof listAppUsage>>,
+  TError = ErrorType<unknown>,
+>(
+  childId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAppUsage>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAppUsageQueryOptions(childId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Log app usage for a child
+ */
+export const getLogAppUsageUrl = (childId: string) => {
+  return `/api/children/${childId}/app-usage`;
+};
+
+export const logAppUsage = async (
+  childId: string,
+  appUsageLogInput: AppUsageLogInput,
+  options?: RequestInit,
+): Promise<AppUsageLog> => {
+  return customFetch<AppUsageLog>(getLogAppUsageUrl(childId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(appUsageLogInput),
+  });
+};
+
+export const getLogAppUsageMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof logAppUsage>>,
+    TError,
+    { childId: string; data: BodyType<AppUsageLogInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof logAppUsage>>,
+  TError,
+  { childId: string; data: BodyType<AppUsageLogInput> },
+  TContext
+> => {
+  const mutationKey = ["logAppUsage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof logAppUsage>>,
+    { childId: string; data: BodyType<AppUsageLogInput> }
+  > = (props) => {
+    const { childId, data } = props ?? {};
+
+    return logAppUsage(childId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type LogAppUsageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof logAppUsage>>
+>;
+export type LogAppUsageMutationBody = BodyType<AppUsageLogInput>;
+export type LogAppUsageMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Log app usage for a child
+ */
+export const useLogAppUsage = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof logAppUsage>>,
+    TError,
+    { childId: string; data: BodyType<AppUsageLogInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof logAppUsage>>,
+  TError,
+  { childId: string; data: BodyType<AppUsageLogInput> },
+  TContext
+> => {
+  return useMutation(getLogAppUsageMutationOptions(options));
 };
 
 /**

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ClerkProvider, SignIn, SignUp, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
-import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation, Redirect, Link } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,6 +11,8 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SelectedChildProvider } from "@/contexts/SelectedChildContext";
 import { PremiumProvider } from "@/contexts/PremiumContext";
 import { UpgradeDialog } from "@/components/premium/UpgradeDialog";
+import { OnboardingModal } from "@/components/OnboardingModal";
+import { ArrowLeft } from "lucide-react";
 
 import Landing from "./pages/Landing";
 import Install from "./pages/Install";
@@ -43,7 +45,7 @@ function stripBase(path: string): string {
     : path;
 }
 
-function SignInPage() {
+function AuthPanel({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="relative hidden lg:flex items-center justify-center p-12 overflow-hidden">
@@ -66,35 +68,29 @@ function SignInPage() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center p-6">
-        <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+      <div className="flex flex-col items-center justify-center p-6 gap-4">
+        <Link to="/" className="self-start flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back to home
+        </Link>
+        {children}
       </div>
     </div>
   );
 }
 
+function SignInPage() {
+  return (
+    <AuthPanel>
+      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+    </AuthPanel>
+  );
+}
+
 function SignUpPage() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      <div className="relative hidden lg:flex items-center justify-center p-12 overflow-hidden">
-        <div className="absolute inset-0 ge-aurora opacity-90" />
-        <div className="relative z-10 max-w-md text-foreground">
-          <div className="flex items-center gap-2 mb-10">
-            <div className="h-9 w-9 rounded-xl bg-gradient-primary grid place-items-center">
-              <svg className="h-5 w-5 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <span className="font-display font-bold text-xl">GuardianEye</span>
-          </div>
-          <h2 className="font-display text-4xl font-bold leading-tight">
-            Family safety,<br /><span className="ge-gradient-text">re-imagined.</span>
-          </h2>
-          <p className="mt-4 text-muted-foreground">Start protecting your family in 2 minutes. Real-time monitoring, AI alerts and smart controls.</p>
-        </div>
-      </div>
-      <div className="flex items-center justify-center p-6">
-        <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
-      </div>
-    </div>
+    <AuthPanel>
+      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+    </AuthPanel>
   );
 }
 
@@ -136,7 +132,7 @@ function AppRoutes() {
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/install" component={Install} />
       <Route path="/child/:childId">
-        {(params) => <RequireAuth><ChildView /></RequireAuth>}
+        {() => <RequireAuth><ChildView /></RequireAuth>}
       </Route>
       <Route path="/app">
         <RequireAuth>
@@ -184,6 +180,7 @@ function ClerkProviderWithRoutes() {
                 <PremiumProvider>
                   <AppRoutes />
                   <UpgradeDialog />
+                  <OnboardingModal />
                 </PremiumProvider>
               </SelectedChildProvider>
             </AuthProvider>

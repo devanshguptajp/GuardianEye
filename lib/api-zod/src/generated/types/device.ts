@@ -8,8 +8,8 @@
 
 export interface Device {
   id: string;
-  child_id: string;
   parent_id: string;
+  child_id: string;
   /** @nullable */
   device_name?: string | null;
   /** @nullable */

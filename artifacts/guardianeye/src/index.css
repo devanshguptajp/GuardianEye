@@ -127,3 +127,12 @@
     50% { opacity: .55; }
   }
 }
+
+/* Hide Clerk "Development mode" indicator (only shown with dev keys) */
+[data-localization-key="badge__devMode"],
+.cl-badge,
+.cl-badge--development,
+#cl-badge-mode,
+[class*="cl-badge"] {
+  display: none !important;
+}

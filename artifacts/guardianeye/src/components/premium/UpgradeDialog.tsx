@@ -1,4 +1,4 @@
-import { Crown, Check, Sparkles, X } from "lucide-react";
+import { Crown, Check, Sparkles, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/contexts/PremiumContext";
@@ -6,9 +6,14 @@ import { usePremium } from "@/contexts/PremiumContext";
 const perks = [
   "Live location & full history",
   "AI-powered unsafe content alerts",
-  "Category-based web filtering",
-  "Unlimited children & devices",
+  "Automatic app blocking when limit is hit",
+  "Up to 5 children & 5 devices",
   "Priority notifications & support",
+];
+
+const pricingOptions = [
+  { label: "3 months", price: "₹499", per: "≈ ₹166/mo", badge: "" },
+  { label: "1 year", price: "₹1,299", per: "≈ ₹108/mo", badge: "Best value — save 56%" },
 ];
 
 export const UpgradeDialog = () => {
@@ -25,7 +30,7 @@ export const UpgradeDialog = () => {
             </div>
             <div>
               <DialogHeader className="space-y-0">
-                <DialogTitle className="font-display text-xl">GuardianEye Premium</DialogTitle>
+                <DialogTitle className="font-display text-xl">GuardianEye Pro</DialogTitle>
                 <DialogDescription className="text-xs">
                   {feature ? `Unlock ${feature}` : "Unlock the full safety suite"}
                 </DialogDescription>
@@ -44,28 +49,45 @@ export const UpgradeDialog = () => {
             ))}
           </ul>
 
-          <div className="ge-card p-4 text-center">
-            <div className="text-3xl font-display font-bold ge-gradient-text">$9.99<span className="text-base text-muted-foreground font-normal">/mo</span></div>
-            <div className="text-xs text-muted-foreground mt-1">Cancel anytime · 7-day free trial</div>
+          <div className="space-y-2">
+            {pricingOptions.map((opt) => (
+              <div key={opt.label} className="ge-card p-4 flex items-center justify-between relative">
+                {opt.badge && (
+                  <div className="absolute -top-2.5 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                    {opt.badge}
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{opt.label}</span>
+                </div>
+                <div className="text-right">
+                  <div className="font-display font-bold">{opt.price}</div>
+                  <div className="text-xs text-muted-foreground">{opt.per}</div>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
               onClick={() => {
-                // TODO: hook up real checkout (Stripe/Paddle) here
                 window.open("https://guardianeye.app/upgrade", "_blank", "noopener,noreferrer");
               }}
             >
               <Sparkles className="h-4 w-4 mr-2" /> Upgrade now
             </Button>
+            <p className="text-center text-[10px] text-muted-foreground">
+              Secure payment · Cancel anytime · 14-day free trial included
+            </p>
             <Button
               variant="ghost"
               size="sm"
               className="w-full text-xs text-muted-foreground"
               onClick={() => { setTier("premium"); closeUpgrade(); }}
             >
-              Try Premium (demo)
+              Continue with trial (demo)
             </Button>
           </div>
         </div>

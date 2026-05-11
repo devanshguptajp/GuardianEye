@@ -7,6 +7,9 @@ type Tier = "basic" | "premium";
 type Ctx = {
   tier: Tier;
   isPremium: boolean;
+  isOnTrial: boolean;
+  trialDaysLeft: number;
+  trialEndsAt: Date | null;
   setTier: (t: Tier) => void;
   upgradeOpen: boolean;
   openUpgrade: (feature?: string) => void;
@@ -17,6 +20,9 @@ type Ctx = {
 const PremiumCtx = createContext<Ctx>({
   tier: "basic",
   isPremium: false,
+  isOnTrial: false,
+  trialDaysLeft: 0,
+  trialEndsAt: null,
   setTier: () => {},
   upgradeOpen: false,
   openUpgrade: () => {},
@@ -32,7 +38,15 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
 
   const { data: profile } = useGetMyProfile({ query: queryOpts({ enabled: !!user }) });
 
-  const serverTier: Tier = profile?.subscription_tier === "premium" ? "premium" : "basic";
+  const now = new Date();
+  const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
+  const isOnTrial = trialEndsAt ? trialEndsAt > now : false;
+  const trialDaysLeft = trialEndsAt
+    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
+
+  const serverTier: Tier =
+    isOnTrial || profile?.subscription_tier === "premium" ? "premium" : "basic";
   const tier: Tier = demoTier ?? serverTier;
 
   return (
@@ -40,6 +54,9 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       value={{
         tier,
         isPremium: tier === "premium",
+        isOnTrial,
+        trialDaysLeft,
+        trialEndsAt,
         setTier: setDemoTier,
         upgradeOpen,
         openUpgrade: (f) => {

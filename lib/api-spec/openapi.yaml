@@ -299,6 +299,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
 
+  /children/{childId}/app-usage:
+    get:
+      operationId: listAppUsage
+      tags: [app-limits]
+      summary: List app usage history for a child (persists after app limit deletion)
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: App usage logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppUsageLog"
+    post:
+      operationId: logAppUsage
+      tags: [app-limits]
+      summary: Log app usage for a child
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppUsageLogInput"
+      responses:
+        "201":
+          description: Created usage log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppUsageLog"
+
   /children/{childId}/devices:
     get:
       operationId: listDevices
@@ -477,6 +521,8 @@ components:
           type: string
         theme:
           type: string
+        trial_ends_at:
+          type: ["string", "null"]
         created_at:
           type: string
         updated_at:
@@ -515,6 +561,8 @@ components:
       properties:
         id:
           type: string
+        parent_id:
+          type: string
         name:
           type: string
         avatar_url:
@@ -523,20 +571,20 @@ components:
           type: ["integer", "null"]
         color:
           type: ["string", "null"]
-        parent_id:
-          type: string
         created_at:
           type: string
       required:
         - id
-        - name
         - parent_id
+        - name
         - created_at
 
     ChildInput:
       type: object
       properties:
         name:
+          type: string
+        avatar_url:
           type: string
         birth_year:
           type: integer
@@ -550,10 +598,10 @@ components:
       properties:
         id:
           type: string
-        child_id:
-          type: ["string", "null"]
         parent_id:
           type: string
+        child_id:
+          type: ["string", "null"]
         title:
           type: string
         description:
@@ -577,9 +625,9 @@ components:
       properties:
         id:
           type: string
-        child_id:
-          type: string
         parent_id:
+          type: string
+        child_id:
           type: string
         app_name:
           type: string
@@ -593,8 +641,8 @@ components:
           type: string
       required:
         - id
-        - child_id
         - parent_id
+        - child_id
         - app_name
         - daily_minutes
         - blocked
@@ -617,21 +665,66 @@ components:
     AppLimitUpdate:
       type: object
       properties:
-        app_name:
-          type: string
         daily_minutes:
           type: integer
         blocked:
           type: boolean
+
+    AppUsageLog:
+      type: object
+      properties:
+        id:
+          type: string
+        parent_id:
+          type: string
+        child_id:
+          type: string
+        app_name:
+          type: string
+        package_id:
+          type: ["string", "null"]
+        date:
+          type: string
+        minutes_used:
+          type: integer
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - parent_id
+        - child_id
+        - app_name
+        - date
+        - minutes_used
+        - created_at
+        - updated_at
+
+    AppUsageLogInput:
+      type: object
+      properties:
+        app_name:
+          type: string
+        package_id:
+          type: string
+        date:
+          type: string
+        minutes_used:
+          type: integer
+      required:
+        - app_name
+        - date
+        - minutes_used
 
     Device:
       type: object
       properties:
         id:
           type: string
-        child_id:
-          type: string
         parent_id:
+          type: string
+        child_id:
           type: string
         device_name:
           type: ["string", "null"]

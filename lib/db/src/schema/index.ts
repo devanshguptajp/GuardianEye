@@ -9,6 +9,7 @@ export const profiles = pgTable("profiles", {
   pin_hash: text("pin_hash"),
   subscription_tier: text("subscription_tier").notNull().default("basic"),
   theme: text("theme").notNull().default("dark"),
+  trial_ends_at: timestamp("trial_ends_at"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -45,6 +46,18 @@ export const app_limits = pgTable("app_limits", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const app_usage_log = pgTable("app_usage_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  parent_id: text("parent_id").notNull(),
+  child_id: uuid("child_id").notNull(),
+  app_name: text("app_name").notNull(),
+  package_id: text("package_id"),
+  date: text("date").notNull(),
+  minutes_used: integer("minutes_used").notNull().default(0),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const devices = pgTable("devices", {
   id: uuid("id").primaryKey().defaultRandom(),
   parent_id: text("parent_id").notNull(),
@@ -71,6 +84,7 @@ export const insertProfileSchema = createInsertSchema(profiles);
 export const insertChildSchema = createInsertSchema(children).omit({ id: true, created_at: true });
 export const insertAlertSchema = createInsertSchema(alerts).omit({ id: true, created_at: true });
 export const insertAppLimitSchema = createInsertSchema(app_limits).omit({ id: true, created_at: true });
+export const insertAppUsageLogSchema = createInsertSchema(app_usage_log).omit({ id: true, created_at: true, updated_at: true });
 export const insertDeviceSchema = createInsertSchema(devices).omit({ id: true, created_at: true });
 export const insertWebBlocklistSchema = createInsertSchema(web_blocklist).omit({ id: true, created_at: true });
 
@@ -78,6 +92,7 @@ export type Profile = typeof profiles.$inferSelect;
 export type Child = typeof children.$inferSelect;
 export type Alert = typeof alerts.$inferSelect;
 export type AppLimit = typeof app_limits.$inferSelect;
+export type AppUsageLog = typeof app_usage_log.$inferSelect;
 export type Device = typeof devices.$inferSelect;
 export type WebBlocklistEntry = typeof web_blocklist.$inferSelect;
 
@@ -85,5 +100,6 @@ export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type InsertChild = z.infer<typeof insertChildSchema>;
 export type InsertAlert = z.infer<typeof insertAlertSchema>;
 export type InsertAppLimit = z.infer<typeof insertAppLimitSchema>;
+export type InsertAppUsageLog = z.infer<typeof insertAppUsageLogSchema>;
 export type InsertDevice = z.infer<typeof insertDeviceSchema>;
 export type InsertWebBlocklistEntry = z.infer<typeof insertWebBlocklistSchema>;

@@ -8,9 +8,9 @@
 
 export interface Alert {
   id: string;
+  parent_id: string;
   /** @nullable */
   child_id?: string | null;
-  parent_id: string;
   title: string;
   /** @nullable */
   description?: string | null;

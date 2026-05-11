@@ -9,7 +9,9 @@ router.get("/profiles/me", requireAuth, async (req, res) => {
   const userId = getUserId(req);
   let profile = await db.query.profiles.findFirst({ where: eq(profiles.id, userId) });
   if (!profile) {
-    const [created] = await db.insert(profiles).values({ id: userId }).returning();
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+    const [created] = await db.insert(profiles).values({ id: userId, trial_ends_at: trialEndsAt }).returning();
     profile = created;
   }
   return res.json(profile);
@@ -23,7 +25,9 @@ router.patch("/profiles/me", requireAuth, async (req, res) => {
     .where(eq(profiles.id, userId))
     .returning();
   if (!updated) {
-    const [created] = await db.insert(profiles).values({ id: userId, display_name }).returning();
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+    const [created] = await db.insert(profiles).values({ id: userId, display_name, trial_ends_at: trialEndsAt }).returning();
     return res.json(created);
   }
   return res.json(updated);

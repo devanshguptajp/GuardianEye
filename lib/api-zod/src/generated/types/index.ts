@@ -10,6 +10,8 @@ export * from "./alert";
 export * from "./appLimit";
 export * from "./appLimitInput";
 export * from "./appLimitUpdate";
+export * from "./appUsageLog";
+export * from "./appUsageLogInput";
 export * from "./child";
 export * from "./childInput";
 export * from "./childOverview";

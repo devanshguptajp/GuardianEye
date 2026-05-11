@@ -6,14 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface AppLimit {
+export interface AppUsageLog {
   id: string;
   parent_id: string;
   child_id: string;
   app_name: string;
   /** @nullable */
   package_id?: string | null;
-  daily_minutes: number;
-  blocked: boolean;
+  date: string;
+  minutes_used: number;
   created_at: string;
+  updated_at: string;
 }

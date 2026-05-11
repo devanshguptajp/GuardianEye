@@ -24,6 +24,7 @@ export const GetMyProfileResponse = zod.object({
   pin_hash: zod.string().nullish(),
   subscription_tier: zod.string(),
   theme: zod.string(),
+  trial_ends_at: zod.string().nullish(),
   created_at: zod.string(),
   updated_at: zod.string(),
 });
@@ -42,6 +43,7 @@ export const UpdateMyProfileResponse = zod.object({
   pin_hash: zod.string().nullish(),
   subscription_tier: zod.string(),
   theme: zod.string(),
+  trial_ends_at: zod.string().nullish(),
   created_at: zod.string(),
   updated_at: zod.string(),
 });
@@ -73,11 +75,11 @@ export const VerifyPinResponse = zod.object({
  */
 export const ListChildrenResponseItem = zod.object({
   id: zod.string(),
+  parent_id: zod.string(),
   name: zod.string(),
   avatar_url: zod.string().nullish(),
   birth_year: zod.number().nullish(),
   color: zod.string().nullish(),
-  parent_id: zod.string(),
   created_at: zod.string(),
 });
 export const ListChildrenResponse = zod.array(ListChildrenResponseItem);
@@ -87,6 +89,7 @@ export const ListChildrenResponse = zod.array(ListChildrenResponseItem);
  */
 export const CreateChildBody = zod.object({
   name: zod.string(),
+  avatar_url: zod.string().optional(),
   birth_year: zod.number().optional(),
   color: zod.string().optional(),
 });
@@ -100,11 +103,11 @@ export const GetChildParams = zod.object({
 
 export const GetChildResponse = zod.object({
   id: zod.string(),
+  parent_id: zod.string(),
   name: zod.string(),
   avatar_url: zod.string().nullish(),
   birth_year: zod.number().nullish(),
   color: zod.string().nullish(),
-  parent_id: zod.string(),
   created_at: zod.string(),
 });
 
@@ -128,8 +131,8 @@ export const ListAlertsParams = zod.object({
 
 export const ListAlertsResponseItem = zod.object({
   id: zod.string(),
-  child_id: zod.string().nullish(),
   parent_id: zod.string(),
+  child_id: zod.string().nullish(),
   title: zod.string(),
   description: zod.string().nullish(),
   severity: zod.string(),
@@ -147,8 +150,8 @@ export const MarkAlertReadParams = zod.object({
 
 export const MarkAlertReadResponse = zod.object({
   id: zod.string(),
-  child_id: zod.string().nullish(),
   parent_id: zod.string(),
+  child_id: zod.string().nullish(),
   title: zod.string(),
   description: zod.string().nullish(),
   severity: zod.string(),
@@ -165,8 +168,8 @@ export const ListAppLimitsParams = zod.object({
 
 export const ListAppLimitsResponseItem = zod.object({
   id: zod.string(),
-  child_id: zod.string(),
   parent_id: zod.string(),
+  child_id: zod.string(),
   app_name: zod.string(),
   package_id: zod.string().nullish(),
   daily_minutes: zod.number(),
@@ -197,15 +200,14 @@ export const UpdateAppLimitParams = zod.object({
 });
 
 export const UpdateAppLimitBody = zod.object({
-  app_name: zod.string().optional(),
   daily_minutes: zod.number().optional(),
   blocked: zod.boolean().optional(),
 });
 
 export const UpdateAppLimitResponse = zod.object({
   id: zod.string(),
-  child_id: zod.string(),
   parent_id: zod.string(),
+  child_id: zod.string(),
   app_name: zod.string(),
   package_id: zod.string().nullish(),
   daily_minutes: zod.number(),
@@ -225,6 +227,40 @@ export const DeleteAppLimitResponse = zod.object({
 });
 
 /**
+ * @summary List app usage history for a child (persists after app limit deletion)
+ */
+export const ListAppUsageParams = zod.object({
+  childId: zod.coerce.string(),
+});
+
+export const ListAppUsageResponseItem = zod.object({
+  id: zod.string(),
+  parent_id: zod.string(),
+  child_id: zod.string(),
+  app_name: zod.string(),
+  package_id: zod.string().nullish(),
+  date: zod.string(),
+  minutes_used: zod.number(),
+  created_at: zod.string(),
+  updated_at: zod.string(),
+});
+export const ListAppUsageResponse = zod.array(ListAppUsageResponseItem);
+
+/**
+ * @summary Log app usage for a child
+ */
+export const LogAppUsageParams = zod.object({
+  childId: zod.coerce.string(),
+});
+
+export const LogAppUsageBody = zod.object({
+  app_name: zod.string(),
+  package_id: zod.string().optional(),
+  date: zod.string(),
+  minutes_used: zod.number(),
+});
+
+/**
  * @summary List devices for a child
  */
 export const ListDevicesParams = zod.object({
@@ -233,8 +269,8 @@ export const ListDevicesParams = zod.object({
 
 export const ListDevicesResponseItem = zod.object({
   id: zod.string(),
-  child_id: zod.string(),
   parent_id: zod.string(),
+  child_id: zod.string(),
   device_name: zod.string().nullish(),
   platform: zod.string().nullish(),
   status: zod.string(),
@@ -318,18 +354,18 @@ export const GetChildOverviewParams = zod.object({
 export const GetChildOverviewResponse = zod.object({
   child: zod.object({
     id: zod.string(),
+    parent_id: zod.string(),
     name: zod.string(),
     avatar_url: zod.string().nullish(),
     birth_year: zod.number().nullish(),
     color: zod.string().nullish(),
-    parent_id: zod.string(),
     created_at: zod.string(),
   }),
   recent_alerts: zod.array(
     zod.object({
       id: zod.string(),
-      child_id: zod.string().nullish(),
       parent_id: zod.string(),
+      child_id: zod.string().nullish(),
       title: zod.string(),
       description: zod.string().nullish(),
       severity: zod.string(),

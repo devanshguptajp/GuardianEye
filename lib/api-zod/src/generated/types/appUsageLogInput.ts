@@ -6,7 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface AppLimitUpdate {
-  daily_minutes?: number;
-  blocked?: boolean;
+export interface AppUsageLogInput {
+  app_name: string;
+  package_id?: string;
+  date: string;
+  minutes_used: number;
 }

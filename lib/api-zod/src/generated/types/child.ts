@@ -8,6 +8,7 @@
 
 export interface Child {
   id: string;
+  parent_id: string;
   name: string;
   /** @nullable */
   avatar_url?: string | null;
@@ -15,6 +16,5 @@ export interface Child {
   birth_year?: number | null;
   /** @nullable */
   color?: string | null;
-  parent_id: string;
   created_at: string;
 }

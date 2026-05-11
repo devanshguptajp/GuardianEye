@@ -16,6 +16,8 @@ export interface Profile {
   pin_hash?: string | null;
   subscription_tier: string;
   theme: string;
+  /** @nullable */
+  trial_ends_at?: string | null;
   created_at: string;
   updated_at: string;
 }

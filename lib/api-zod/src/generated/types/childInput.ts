@@ -8,6 +8,7 @@
 
 export interface ChildInput {
   name: string;
+  avatar_url?: string;
   birth_year?: number;
   color?: string;
 }
