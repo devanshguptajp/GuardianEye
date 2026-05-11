@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GuardianEye design system — premium dark-first, indigo/violet/teal accent */
+@layer base {
+  :root {
+    --background: 240 30% 98%;
+    --foreground: 240 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 25% 10%;
+
+    --primary: 252 87% 62%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 95% 72%;
+
+    --secondary: 240 20% 94%;
+    --secondary-foreground: 240 25% 12%;
+
+    --muted: 240 16% 94%;
+    --muted-foreground: 240 10% 40%;
+
+    --accent: 175 75% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 152 70% 42%;
+    --warning: 38 95% 55%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 15% 88%;
+    --input: 240 15% 88%;
+    --ring: 252 87% 62%;
+
+    --radius: 1rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(252 87% 62%), hsl(270 95% 72%));
+    --gradient-aurora: radial-gradient(60% 60% at 20% 10%, hsl(252 87% 62% / .35), transparent 60%),
+                       radial-gradient(60% 60% at 80% 20%, hsl(175 75% 45% / .3), transparent 60%),
+                       radial-gradient(60% 60% at 50% 100%, hsl(290 90% 65% / .3), transparent 60%);
+    --shadow-glow: 0 20px 60px -20px hsl(252 87% 62% / .55);
+    --shadow-card: 0 10px 30px -15px hsl(240 40% 10% / .15);
+  }
+
+  .dark {
+    --background: 245 35% 6%;
+    --foreground: 240 20% 96%;
+
+    --card: 245 30% 9%;
+    --card-foreground: 240 20% 96%;
+
+    --popover: 245 30% 9%;
+    --popover-foreground: 240 20% 96%;
+
+    --primary: 256 92% 70%;
+    --primary-foreground: 245 35% 6%;
+    --primary-glow: 280 95% 75%;
+
+    --secondary: 245 25% 14%;
+    --secondary-foreground: 240 20% 96%;
+
+    --muted: 245 25% 14%;
+    --muted-foreground: 240 12% 65%;
+
+    --accent: 175 80% 55%;
+    --accent-foreground: 245 35% 6%;
+
+    --success: 152 65% 50%;
+    --warning: 38 95% 60%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 245 25% 18%;
+    --input: 245 25% 16%;
+    --ring: 256 92% 70%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(256 92% 70%), hsl(290 95% 72%));
+    --gradient-aurora: radial-gradient(50% 50% at 15% 10%, hsl(256 92% 70% / .35), transparent 60%),
+                       radial-gradient(50% 50% at 85% 20%, hsl(175 80% 55% / .25), transparent 60%),
+                       radial-gradient(60% 50% at 50% 100%, hsl(290 95% 72% / .28), transparent 60%);
+    --shadow-glow: 0 30px 80px -20px hsl(256 92% 70% / .55);
+    --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / .55);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, h4 { font-family: 'Sora', 'Inter', sans-serif; letter-spacing: -0.02em; }
+}
+
+@layer components {
+  .ge-aurora { background-image: var(--gradient-aurora); }
+  .ge-gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .ge-glass {
+    @apply backdrop-blur-xl bg-card/60 border border-border/60;
+  }
+  .ge-card {
+    @apply rounded-2xl bg-card border border-border/70;
+    box-shadow: var(--shadow-card);
+  }
+}
+
+@layer utilities {
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .animate-pulse-soft { animation: pulse-soft 2.4s ease-in-out infinite; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: .9; }
+    50% { opacity: .55; }
+  }
+}

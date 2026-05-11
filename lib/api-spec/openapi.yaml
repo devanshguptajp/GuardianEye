@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: GuardianEye API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: profiles
+    description: User profile operations
+  - name: children
+    description: Children management
+  - name: alerts
+    description: Alerts management
+  - name: app-limits
+    description: App limits management
+  - name: devices
+    description: Devices management
+  - name: web-blocklist
+    description: Web blocklist management
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,414 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /profiles/me:
+    get:
+      operationId: getMyProfile
+      tags: [profiles]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    patch:
+      operationId: updateMyProfile
+      tags: [profiles]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
+  /profiles/me/pin:
+    post:
+      operationId: setPin
+      tags: [profiles]
+      summary: Set or update parent PIN hash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PinInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /profiles/me/verify-pin:
+    post:
+      operationId: verifyPin
+      tags: [profiles]
+      summary: Verify parent PIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PinInput"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PinVerifyResult"
+
+  /children:
+    get:
+      operationId: listChildren
+      tags: [children]
+      summary: List children
+      responses:
+        "200":
+          description: List of children
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Child"
+    post:
+      operationId: createChild
+      tags: [children]
+      summary: Create child profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildInput"
+      responses:
+        "201":
+          description: Created child
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+
+  /children/{childId}:
+    get:
+      operationId: getChild
+      tags: [children]
+      summary: Get child profile
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Child
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+    delete:
+      operationId: deleteChild
+      tags: [children]
+      summary: Delete child and all related data
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /children/{childId}/alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts for a child
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{alertId}/read:
+    patch:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark alert as read
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated alert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  /children/{childId}/app-limits:
+    get:
+      operationId: listAppLimits
+      tags: [app-limits]
+      summary: List app limits for a child
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: App limits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppLimit"
+    post:
+      operationId: createAppLimit
+      tags: [app-limits]
+      summary: Create app limit
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppLimitInput"
+      responses:
+        "201":
+          description: Created app limit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppLimit"
+
+  /app-limits/{limitId}:
+    patch:
+      operationId: updateAppLimit
+      tags: [app-limits]
+      summary: Update app limit
+      parameters:
+        - name: limitId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppLimitUpdate"
+      responses:
+        "200":
+          description: Updated app limit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppLimit"
+    delete:
+      operationId: deleteAppLimit
+      tags: [app-limits]
+      summary: Delete app limit
+      parameters:
+        - name: limitId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /children/{childId}/devices:
+    get:
+      operationId: listDevices
+      tags: [devices]
+      summary: List devices for a child
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      operationId: createDevice
+      tags: [devices]
+      summary: Add device
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceInput"
+      responses:
+        "201":
+          description: Created device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /devices/{deviceId}:
+    delete:
+      operationId: deleteDevice
+      tags: [devices]
+      summary: Delete device
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /children/{childId}/web-blocklist:
+    get:
+      operationId: listWebBlocklist
+      tags: [web-blocklist]
+      summary: List web blocklist for a child
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Web blocklist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WebBlocklistEntry"
+    post:
+      operationId: addWebBlocklistEntry
+      tags: [web-blocklist]
+      summary: Add web blocklist entry
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebBlocklistInput"
+      responses:
+        "201":
+          description: Created entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebBlocklistEntry"
+
+  /web-blocklist/{entryId}:
+    delete:
+      operationId: deleteWebBlocklistEntry
+      tags: [web-blocklist]
+      summary: Delete web blocklist entry
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /children/{childId}/overview:
+    get:
+      operationId: getChildOverview
+      tags: [children]
+      summary: Get child dashboard overview (alerts + devices summary)
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Child overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChildOverview"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +454,269 @@ components:
       required:
         - status
 
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
+
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+        display_name:
+          type: ["string", "null"]
+        avatar_url:
+          type: ["string", "null"]
+        pin_hash:
+          type: ["string", "null"]
+        subscription_tier:
+          type: string
+        theme:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - subscription_tier
+        - theme
+        - created_at
+        - updated_at
+
+    ProfileUpdate:
+      type: object
+      properties:
+        display_name:
+          type: string
+
+    PinInput:
+      type: object
+      properties:
+        pin_hash:
+          type: string
+      required:
+        - pin_hash
+
+    PinVerifyResult:
+      type: object
+      properties:
+        valid:
+          type: boolean
+      required:
+        - valid
+
+    Child:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar_url:
+          type: ["string", "null"]
+        birth_year:
+          type: ["integer", "null"]
+        color:
+          type: ["string", "null"]
+        parent_id:
+          type: string
+        created_at:
+          type: string
+      required:
+        - id
+        - name
+        - parent_id
+        - created_at
+
+    ChildInput:
+      type: object
+      properties:
+        name:
+          type: string
+        birth_year:
+          type: integer
+        color:
+          type: string
+      required:
+        - name
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        child_id:
+          type: ["string", "null"]
+        parent_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        severity:
+          type: string
+        read:
+          type: boolean
+        created_at:
+          type: string
+      required:
+        - id
+        - parent_id
+        - title
+        - severity
+        - read
+        - created_at
+
+    AppLimit:
+      type: object
+      properties:
+        id:
+          type: string
+        child_id:
+          type: string
+        parent_id:
+          type: string
+        app_name:
+          type: string
+        package_id:
+          type: ["string", "null"]
+        daily_minutes:
+          type: integer
+        blocked:
+          type: boolean
+        created_at:
+          type: string
+      required:
+        - id
+        - child_id
+        - parent_id
+        - app_name
+        - daily_minutes
+        - blocked
+        - created_at
+
+    AppLimitInput:
+      type: object
+      properties:
+        app_name:
+          type: string
+        package_id:
+          type: string
+        daily_minutes:
+          type: integer
+        blocked:
+          type: boolean
+      required:
+        - app_name
+
+    AppLimitUpdate:
+      type: object
+      properties:
+        app_name:
+          type: string
+        daily_minutes:
+          type: integer
+        blocked:
+          type: boolean
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        child_id:
+          type: string
+        parent_id:
+          type: string
+        device_name:
+          type: ["string", "null"]
+        platform:
+          type: ["string", "null"]
+        status:
+          type: string
+        pairing_code:
+          type: ["string", "null"]
+        paired_at:
+          type: ["string", "null"]
+        last_seen:
+          type: ["string", "null"]
+        created_at:
+          type: string
+      required:
+        - id
+        - child_id
+        - parent_id
+        - status
+        - created_at
+
+    DeviceInput:
+      type: object
+      properties:
+        device_name:
+          type: string
+        platform:
+          type: string
+      required:
+        - device_name
+
+    WebBlocklistEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        child_id:
+          type: string
+        parent_id:
+          type: string
+        domain:
+          type: string
+        category:
+          type: ["string", "null"]
+        created_at:
+          type: string
+      required:
+        - id
+        - child_id
+        - parent_id
+        - domain
+        - created_at
+
+    WebBlocklistInput:
+      type: object
+      properties:
+        domain:
+          type: string
+        category:
+          type: string
+      required:
+        - domain
+
+    ChildOverview:
+      type: object
+      properties:
+        child:
+          $ref: "#/components/schemas/Child"
+        recent_alerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+        unread_alerts_count:
+          type: integer
+        active_devices_count:
+          type: integer
+        app_limits_count:
+          type: integer
+        blocked_sites_count:
+          type: integer
+      required:
+        - child
+        - recent_alerts
+        - unread_alerts_count
+        - active_devices_count
+        - app_limits_count
+        - blocked_sites_count
