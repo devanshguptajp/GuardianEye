@@ -169,16 +169,27 @@ export const DeleteChildSection = () => {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{pinSet ? "Change Parent PIN" : "Set Parent PIN"}</DialogTitle>
-            <DialogDescription>4–8 digits. Required for sensitive actions like deleting a child.</DialogDescription>
+            <DialogDescription>
+              {pinSet
+                ? "Enter your current PIN, then choose a new 4–8 digit PIN."
+                : "Choose a 4–8 digit PIN. You'll need it to approve sensitive actions."}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {pinSet && (
+              <div>
+                <Label htmlFor="op">Current PIN</Label>
+                <Input id="op" type="password" inputMode="numeric" maxLength={8} value={oldPin}
+                  onChange={(e) => setOldPin(e.target.value.replace(/\D/g, ""))} className="mt-1.5" autoFocus />
+              </div>
+            )}
             <div>
               <Label htmlFor="np">New PIN</Label>
               <Input id="np" type="password" inputMode="numeric" maxLength={8} value={newPin}
                 onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))} className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="np2">Confirm PIN</Label>
+              <Label htmlFor="np2">Confirm new PIN</Label>
               <Input id="np2" type="password" inputMode="numeric" maxLength={8} value={newPin2}
                 onChange={(e) => setNewPin2(e.target.value.replace(/\D/g, ""))} className="mt-1.5" />
             </div>
