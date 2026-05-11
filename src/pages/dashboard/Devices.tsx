@@ -31,7 +31,12 @@ const Devices = () => {
   const generate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !selectedId) return;
-    const code = Math.random().toString(36).slice(2, 8).toUpperCase() + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+    // Cryptographically secure pairing code (~50 bits of entropy)
+    const buf = new Uint8Array(8);
+    crypto.getRandomValues(buf);
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous chars
+    const chars = Array.from(buf, (b) => alphabet[b % alphabet.length]);
+    const code = chars.slice(0, 6).join("") + "-" + chars.slice(6, 10).join("");
     const { data, error } = await supabase.from("devices").insert({
       parent_id: user.id, child_id: selectedId, device_name: deviceName || "New device",
       pairing_code: code, status: "pending",
