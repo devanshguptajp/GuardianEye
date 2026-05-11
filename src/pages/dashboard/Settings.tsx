@@ -9,6 +9,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { usePremium } from "@/contexts/PremiumContext";
 import { Crown, ShieldCheck, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DeleteChildSection } from "@/components/settings/DeleteChildSection";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -58,6 +59,8 @@ const Settings = () => {
       </section>
 
       <PremiumSection />
+
+      <DeleteChildSection />
 
       <section className="ge-card p-6 space-y-3">
         <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-accent" /><h2 className="font-display font-semibold">Security</h2></div>
