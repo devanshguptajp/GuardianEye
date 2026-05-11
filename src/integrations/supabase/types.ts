@@ -282,6 +282,7 @@ export type Database = {
           display_name: string | null
           id: string
           pin_hash: string | null
+          subscription_tier: string
           theme: string
           updated_at: string
         }
@@ -291,6 +292,7 @@ export type Database = {
           display_name?: string | null
           id: string
           pin_hash?: string | null
+          subscription_tier?: string
           theme?: string
           updated_at?: string
         }
@@ -300,6 +302,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           pin_hash?: string | null
+          subscription_tier?: string
           theme?: string
           updated_at?: string
         }
