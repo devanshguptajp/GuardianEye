@@ -120,18 +120,22 @@ export const DeleteChildSection = () => {
         <h2 className="font-display font-semibold">Danger zone</h2>
       </div>
 
-      {/* Parent PIN setup */}
+      {/* Parent PIN management */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 text-sm">
           <KeyRound className="h-4 w-4 text-muted-foreground" />
           Parent PIN: <span className={pinSet ? "text-success font-medium" : "text-warning font-medium"}>
-            {pinSet ? "set" : "not set"}
+            {pinSet ? "active" : "missing — set one now"}
           </span>
         </div>
         <Button variant="outline" size="sm" onClick={() => setPinDialogOpen(true)}>
           {pinSet ? "Change PIN" : "Set PIN"}
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground -mt-2">
+        Your PIN approves sensitive actions: changing time limits or settings from your child's phone,
+        granting extra time, and unlocking parent mode.
+      </p>
 
       <div className="border-t border-border pt-4 space-y-3">
         <div>
