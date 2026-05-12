@@ -1,0 +1,207 @@
+FIRST:
+
+Audit the entire codebase
+Detect all bugs
+Detect broken buttons
+Detect UI overflow issues
+Detect broken responsiveness
+Detect console errors
+Detect backend failures
+Detect non-working APIs
+Detect auth problems
+Detect mobile UI issues
+Then:
+
+Generate a full report
+Refactor the project into scalable production architecture.
+Requirements:
+
+Frontend:
+
+React
+TypeScript
+Tailwind
+Framer Motion
+Zustand
+Backend:
+
+Node.js
+Express
+TypeScript
+JWT auth
+Socket.io
+Database:
+
+PostgreSQL
+Prisma ORM
+Architecture:
+
+Modular folder structure
+API layer separation
+Services layer
+Middleware structure
+Error handling system
+Validation layer
+Logging system
+DO NOT remove existing features.
+Migrate carefully.Transform the UI into a premium cybersecurity startup design.
+
+Style:
+
+Dark futuristic theme
+Glassmorphism
+Child-friendly illustrations
+Animated gradients
+Floating glowing cards
+Smooth transitions
+Mobile-first
+Friendly family-oriented visuals
+Fix:
+
+Dashboard overflow
+Mobile spacing
+Navbar responsiveness
+Add:
+
+Playful dashboard graphics
+Child-safe color accents
+Animated icons
+Better onboarding UX
+Use Framer Motion carefully without reducing performance.Make all parental control systems FUNCTIONAL, not just UI mockups.
+
+Implement properly:
+
+Screen time tracking
+Automatic time lock
+Homework mode
+Focus mode
+Instant internet block
+App category lock
+Newly installed app auto-detection
+Auto-block games based on parent rules
+Website history tracking
+Device usage analytics
+Realtime alerts
+Background monitoring support
+SOS emergency system
+App uninstall tracking
+Historical app usage records
+Parent notifications
+Geofencing logic
+Important:
+Explain limitations of browser-based systems clearly.
+If Android-native functionality is required,
+prepare backend APIs and Android integration architecture.Any feature requiring:
+
+background app monitoring
+app blocking
+internet disabling
+uninstall tracking
+category enforcement
+device lock
+app timers
+must be implemented using:
+
+Android foreground services
+Accessibility APIs
+UsageStatsManager
+Device Admin APIs
+VPNService APIs if needed
+Create proper backend support and architecture for this.Create architecture for a child companion Android app.
+
+Features:
+
+Runs in background
+Sends usage data
+Tracks installed apps
+Tracks websites visited
+Sends alerts
+Enforces screen timers
+Blocks categories
+Detects uninstall attempts
+Sends GPS updates
+Handles SOS mode
+Create:
+
+API contracts
+Data models
+Sync logic
+Permission handling designImplement secure authentication system.
+Requirements:
+
+JWT auth
+Email verification
+Password reset
+Role-based access
+Parent/Child accounts
+Free Trial:
+
+Exactly 14 days
+Store trial start timestamp
+Auto-expire after 14 days
+Prevent abuse
+Subscription enforcement after expiryCreate realistic testimonials section.
+Requirements:
+
+Add profile photos
+Different writing styles
+Slightly imperfect English
+Genuine parent emotions
+Different family situations
+Diverse visuals
+DO NOT overdo spelling mistakes.
+Keep believable.Add a premium Contact/Connect section.
+
+Include:
+
+Contact form
+Social icons
+Support section
+FAQ preview
+Emails:
+
+devanshguptajp@gmail.com
+websitemakerdevu@gmail.comImplement realtime systems using Socket.io.
+Features:
+
+Live alerts
+SOS updates
+Realtime dashboard sync
+Live notifications
+Device online/offline status
+Geofence breach alertsPerform production-grade security audit.
+Implement:
+
+Helmet.js
+Rate limiting
+Input sanitization
+CSRF protection
+XSS protection
+Secure JWT storage
+API validation
+Secure cookies
+Environment variable protection
+Logging & monitoring
+Check all endpoints thoroughly.Convert the dashboard into a Progressive Web App.
+
+Requirements:
+
+Installable
+Offline support
+Push notifications
+Mobile optimized
+Splash screen
+App-like experience
+Explain issues clearly
+Show affected files
+Suggest fixes
+Wait for approval before changing architecture
+Critical issues to fix immediately:
+
+Get Started button overflowing on mobile dashboard
+Broken responsiveness
+Any non-working parental controls
+Any failing timers
+Any broken locks
+Any loading issues
+DO NOT break existing features.
