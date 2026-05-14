@@ -82,6 +82,17 @@ export const web_blocklist = pgTable("web_blocklist", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const push_subscriptions = pgTable("push_subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  parent_id: text("parent_id").notNull(),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type PushSubscription = typeof push_subscriptions.$inferSelect;
+
 export const insertProfileSchema = createInsertSchema(profiles);
 export const insertChildSchema = createInsertSchema(children).omit({ id: true, created_at: true });
 export const insertAlertSchema = createInsertSchema(alerts).omit({ id: true, created_at: true });

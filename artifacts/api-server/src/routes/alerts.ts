@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, alerts, children } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { requireAuth, getUserId } from "../lib/auth";
+import { sendPushToUser } from "./push";
 
 const router = Router();
 

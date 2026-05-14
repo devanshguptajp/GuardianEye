@@ -1,4 +1,4 @@
-const CACHE = "ge-v1";
+const CACHE = "ge-v2";
 const SHELL = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -29,6 +29,48 @@ self.addEventListener("fetch", (e) => {
         return res;
       });
       return cached || network;
+    })
+  );
+});
+
+// ── Push notifications ──────────────────────────────────────────────────────
+
+self.addEventListener("push", (e) => {
+  if (!e.data) return;
+
+  let payload;
+  try {
+    payload = e.data.json();
+  } catch {
+    payload = { title: "GuardianEye Alert", body: e.data.text() };
+  }
+
+  e.waitUntil(
+    self.registration.showNotification(payload.title ?? "GuardianEye Alert", {
+      body: payload.body ?? "",
+      icon: payload.icon ?? "/icon-192.png",
+      badge: payload.badge ?? "/icon-192.png",
+      tag: payload.tag ?? "guardianeye-alert",
+      renotify: true,
+      requireInteraction: payload.severity === "high",
+      data: payload.data ?? {},
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) ? e.notification.data.url : "/app/alerts";
+  e.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.navigate(url);
+          return;
+        }
+      }
+      return clients.openWindow(url);
     })
   );
 });

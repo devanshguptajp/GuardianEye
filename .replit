@@ -70,3 +70,9 @@ externalPort = 3000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+VAPID_PUBLIC_KEY = "BNc8tvNwL0kKw1wMPU14gQgahM_FjEKOL17whqp53tB1FrhrdlPMCKEOdQ_zVYfS2sDDEB3WJRStUCxCJFKh8KU"
+VAPID_SUBJECT = "mailto:guardianeye.family@gmail.com"
