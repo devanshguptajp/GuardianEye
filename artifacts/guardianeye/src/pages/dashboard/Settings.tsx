@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePremium } from "@/contexts/PremiumContext";
-import { Crown, ShieldCheck, LogOut, Lock, Sun, Moon, Clock, CheckCircle2 } from "lucide-react";
+import { Crown, ShieldCheck, LogOut, Lock, Sun, Moon, Clock, CheckCircle2, Bell, BellOff, BellRing, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { DeleteChildSection } from "@/components/settings/DeleteChildSection";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@workspace/api-client-react";
 import { PinInput } from "@/components/PinInput";
 import { useQueryClient } from "@tanstack/react-query";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -72,6 +73,8 @@ const Settings = () => {
       <ParentPinSection hasPin={!!profile?.pin_hash} />
 
       <PremiumSection />
+
+      <PushNotificationSection />
 
       <DeleteChildSection />
 
@@ -338,6 +341,77 @@ const PremiumSection = () => {
           </Button>
         )}
       </div>
+    </section>
+  );
+};
+
+const PushNotificationSection = () => {
+  const { state, subscribe, unsubscribe } = usePushNotifications();
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+
+  const handleToggle = async () => {
+    setBusy(true);
+    if (state === "subscribed") {
+      const ok = await unsubscribe();
+      toast({ title: ok ? "Notifications disabled" : "Failed to disable notifications" });
+    } else {
+      const ok = await subscribe();
+      if (ok) {
+        toast({ title: "Notifications enabled!", description: "You'll get instant alerts when GuardianEye detects something." });
+      } else if (state === "denied") {
+        toast({ title: "Permission denied", description: "Enable notifications in your browser settings.", variant: "destructive" });
+      } else {
+        toast({ title: "Could not enable notifications", variant: "destructive" });
+      }
+    }
+    setBusy(false);
+  };
+
+  if (state === "unsupported") return null;
+
+  return (
+    <section className="ge-card p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <BellRing className="h-5 w-5 text-accent" />
+        <h2 className="font-display font-semibold">Push Notifications</h2>
+        <span className={`ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${state === "subscribed" ? "bg-accent/20 text-accent" : "bg-secondary text-muted-foreground"}`}>
+          {state === "subscribed" ? "On" : state === "denied" ? "Blocked" : "Off"}
+        </span>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        {state === "subscribed"
+          ? "You'll receive instant notifications for AI safety alerts, dangerous content, and urgent activity — even when the app is closed."
+          : state === "denied"
+          ? "Notifications are blocked. Open your browser settings and allow notifications for this site."
+          : "Get real-time alerts on your phone or browser whenever GuardianEye detects something concerning."}
+      </p>
+
+      <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/40 text-sm">
+        <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
+        <span className="text-muted-foreground">AI safety alerts · Dangerous content · App limit warnings · Location updates</span>
+      </div>
+
+      {state !== "denied" && (
+        <button
+          onClick={handleToggle}
+          disabled={busy || state === "loading"}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm transition-all ${
+            state === "subscribed"
+              ? "bg-secondary text-foreground hover:bg-secondary/80"
+              : "bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
+          } disabled:opacity-50`}
+        >
+          {busy || state === "loading" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : state === "subscribed" ? (
+            <><BellOff className="h-4 w-4" /> Disable notifications</>
+          ) : (
+            <><Bell className="h-4 w-4" /> Enable notifications</>
+          )}
+        </button>
+      )}
     </section>
   );
 };

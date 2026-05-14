@@ -21,6 +21,34 @@ router.get("/children/:childId/alerts", requireAuth, async (req, res) => {
   return res.json(rows);
 });
 
+router.post("/children/:childId/alerts", requireAuth, async (req, res) => {
+  const userId = getUserId(req);
+  const childId = String(req.params["childId"]);
+  const child = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parent_id, userId)),
+  });
+  if (!child) return res.status(404).json({ error: "Not found" });
+
+  const { title, description, severity } = req.body as {
+    title: string;
+    description?: string;
+    severity?: string;
+  };
+  if (!title) return res.status(400).json({ error: "title required" });
+
+  const [created] = await db.insert(alerts)
+    .values({ parent_id: userId, child_id: childId, title, description, severity: severity ?? "info" })
+    .returning();
+
+  await sendPushToUser(userId, {
+    title,
+    body: description ?? `New alert for ${child.name}`,
+    severity: severity ?? "info",
+  });
+
+  return res.json(created);
+});
+
 router.patch("/alerts/:alertId/read", requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const alertId = String(req.params["alertId"]);
