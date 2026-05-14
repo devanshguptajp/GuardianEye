@@ -54,7 +54,34 @@ A parental monitoring web app with real-time visibility into children's digital 
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Do NOT rebuild the project from scratch — improve and extend the existing codebase
+- The spec file in attached_assets defines the target product direction; implement from it without rebuilding
+- Premium plan can be granted for free to relatives by changing `subscription_tier` to `"premium"` in the `profiles` table in the database (see "Giving Free Premium Access" below)
+
+## Giving Free Premium Access (to relatives or anyone)
+
+After the app is **deployed**, you can give any user free Lifetime Pro access by running this SQL in the Replit database console:
+
+```sql
+-- 1. Find the user's Clerk user ID (they must have signed in at least once):
+SELECT id, display_name, subscription_tier, trial_ends_at FROM profiles;
+
+-- 2. Grant them Lifetime Pro:
+UPDATE profiles SET subscription_tier = 'premium', updated_at = NOW() WHERE id = '<clerk_user_id>';
+
+-- 3. To revoke Pro (back to Basic):
+UPDATE profiles SET subscription_tier = 'basic', updated_at = NOW() WHERE id = '<clerk_user_id>';
+```
+
+When `subscription_tier = 'premium'`, the user sees **"Pro · Lifetime"** badge in their Settings page with the message "You have been granted free lifetime Pro access." — no payment required, no expiry.
+
+The Clerk user ID looks like `user_2abc123...`. Users can find it in their profile, or you can list all profiles with the SELECT above.
+
+You can also use the built-in admin API endpoint (requires setting ADMIN_USER_IDS env var to your Clerk user ID):
+```
+POST /api/profiles/admin/grant-premium
+Body: { "target_user_id": "<clerk_user_id>" }
+```
 
 ## Gotchas
 

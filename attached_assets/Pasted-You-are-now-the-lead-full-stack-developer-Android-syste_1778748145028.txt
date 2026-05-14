@@ -1,0 +1,555 @@
+You are now the lead full-stack developer, Android systems engineer, UI/UX designer, QA tester, and security engineer for my existing project called “Guardian Eye”.
+
+IMPORTANT:
+
+* This project currently exists as a WEBSITE hosted on Replit.
+* DO NOT rebuild the project from scratch unless absolutely necessary.
+* Improve and complete the existing codebase carefully.
+* Preserve all working functionality while upgrading everything professionally.
+* This project should become an Android-first parental control platform.
+* Focus on Android compatibility first.
+* iPhone/iOS advanced restrictions can be added later in future native app updates.
+
+CRITICAL PRODUCT DIRECTION:
+The system should use:
+
+1. A responsive parent dashboard website/PWA
+2. A child-side Android-compatible system for monitoring and restrictions
+
+The architecture must be scalable so future native Android/iOS apps can connect to the same backend and database.
+
+==================================================
+PRIMARY GOAL
+============
+
+Guardian Eye must become a REAL parental control platform with:
+
+* Remote app blocking
+* Website monitoring
+* Screen time tracking
+* Real-time alerts
+* Device pairing
+* Child protection
+* AI safety monitoring
+* Live syncing
+* Modern premium UI
+
+The current project is unfinished.
+Audit EVERYTHING and fix ALL incomplete systems.
+
+==================================================
+IMPORTANT REALISTIC IMPLEMENTATION RULES
+========================================
+
+A pure website alone cannot fully block Android apps at OS level.
+
+Therefore:
+
+* Implement the BEST POSSIBLE Android-compatible app blocking architecture.
+* Use Android-friendly approaches such as:
+
+  * accessibility-based overlays
+  * usage stats permissions
+  * foreground monitoring
+  * lock overlays
+  * PWA + Android integration architecture
+* Build the system in a way that can later be converted into a native Android app without rewriting the backend.
+
+DO NOT fake app blocking.
+DO NOT simulate features with dummy data.
+If a feature requires Android permissions, implement the required permission flow properly.
+
+==================================================
+FULL UI/UX REDESIGN
+===================
+
+Completely redesign the platform to look like a premium modern parental control product similar to:
+
+* Qustodio
+* Bark
+* Norton Family
+* Aura
+* Google Family Link
+
+Current issues:
+
+* Dashboard is too small
+* UI looks unfinished
+* Layout is unattractive
+* Poor spacing
+* Weak responsiveness
+* No premium feel
+* No smooth animations
+
+Fix everything.
+
+NEW DESIGN REQUIREMENTS:
+
+* Fully responsive mobile-first layout
+* Android optimized
+* Beautiful dashboard
+* Modern SaaS design
+* Animated charts
+* Real-time visuals
+* Smooth transitions
+* Dark mode + light mode
+* Better typography
+* Better navigation
+* Better cards
+* Gradient UI
+* Floating action buttons
+* Realtime animated widgets
+* Interactive dashboard
+* Better onboarding flow
+* Fun but professional interface
+
+==================================================
+PWA + MOBILE EXPERIENCE
+=======================
+
+Convert the website into a proper installable PWA:
+
+* Add manifest.json
+* Add service worker
+* Add install prompt
+* Add splash screen
+* Add offline fallback
+* Add Android install support
+* Make it feel like a real mobile app
+
+==================================================
+AUTH + SECURITY
+===============
+
+Completely audit and improve authentication/security:
+
+* Secure login/signup
+* JWT/session security
+* Password hashing
+* API protection
+* Role-based access
+* Rate limiting
+* CSRF/XSS protection
+* Secure database queries
+
+Account types:
+
+* Parent
+* Child
+
+==================================================
+PARENT PIN SYSTEM
+=================
+
+Add a secure Parent PIN system:
+
+* Parent sets 4–6 digit PIN
+* Child cannot:
+
+  * disable protections
+  * change settings
+  * unpair device
+  * unlock blocked apps
+  * change restrictions
+    without entering parent PIN
+
+==================================================
+CHILD MODE / CHILD AREA
+=======================
+
+Create a dedicated Child Area interface.
+
+Requirements:
+
+* Child area accessible before full login
+* Child sees:
+
+  * screen time
+  * blocked apps
+  * restrictions
+  * daily limits
+  * remaining time
+  * tasks/goals
+* Child cannot modify settings
+* Parent PIN required for protected actions
+
+Add:
+
+* Gamified healthy usage system
+* Achievement badges
+* Positive reinforcement UI
+* Friendly child dashboard
+
+==================================================
+DEVICE PAIRING SYSTEM
+=====================
+
+The current pairing system is incomplete.
+Rebuild and stabilize it completely.
+
+Requirements:
+
+* Pair Device page
+* QR code generation on parent side
+* QR scanner on child side
+* Child scans QR to connect devices
+* Real database pairing
+* Realtime syncing
+* Pairing status indicators
+* Reconnect handling
+* Device management page
+* Unpair feature
+
+==================================================
+REMOTE APP BLOCKING (VERY IMPORTANT)
+====================================
+
+Implement REAL Android-focused app blocking architecture.
+
+Requirements:
+
+* Parent can remotely block apps
+* Parent can instantly lock apps
+* Scheduled app blocking
+* Temporary unlock mode
+* App categories
+* Social media blocking
+* Gaming blocking
+* VPN blocking
+* Browser blocking
+* Streaming blocking
+
+Use Android-compatible methods:
+
+* usage stats APIs architecture
+* accessibility overlays
+* foreground app detection
+* lock screen overlays
+
+When blocked:
+
+* Child sees custom Guardian Eye lock screen
+* Parent PIN required to unlock
+
+DO NOT leave this feature half completed.
+
+==================================================
+AUTOMATIC NEW APP RESTRICTIONS
+==============================
+
+Add:
+“Automatically block newly installed apps above allowed child age rating”
+
+Example:
+If parent sets child age to 13:
+
+* newly installed 16+ or 18+ apps automatically become blocked.
+
+Add quick categories:
+
+* Social Media
+* Gaming
+* Streaming
+* Adult Content
+* VPNs
+* Messaging Apps
+* Shopping Apps
+
+==================================================
+SCREEN TIME TRACKING
+====================
+
+Implement REAL tracking:
+
+* Daily usage
+* Weekly usage
+* Monthly usage
+* Per-app usage
+* Device activity timeline
+* Most used apps
+* Screen habit analytics
+
+Replace ALL fake/sample analytics.
+
+==================================================
+WEBSITE + SEARCH MONITORING
+===========================
+
+Track visited websites and searches.
+
+Show:
+
+* Website URL
+* Website title
+* Time spent
+* Search queries
+* Visit timestamps
+* Categories
+
+Especially monitor:
+
+* Chrome activity
+* Harmful searches
+* Unsafe browsing
+
+==================================================
+AI SAFETY ALERTS
+================
+
+Implement AI moderation/safety system.
+
+Detect:
+
+* self-harm searches
+* violence
+* drugs
+* adult content
+* bullying
+* predators
+* dangerous searches
+* suicidal intent
+* harmful keywords
+
+Generate realtime parent alerts.
+
+==================================================
+LOCATION TRACKING
+=================
+
+Add:
+
+* Live location map
+* Last known location
+* Device tracking
+* Geofencing alerts
+* Device online/offline status
+
+==================================================
+FREE TRIAL + SUBSCRIPTIONS
+==========================
+
+Current trial logic is unreliable.
+
+Fix properly.
+
+Requirements:
+
+* 14-day free trial
+* Trial ends EXACTLY after 14 days
+* No bypasses
+* Backend validation required
+* Disable premium APIs after expiration
+* Prevent frontend-only checks
+* Add upgrade/subscription page
+* Build scalable subscription architecture
+
+==================================================
+REMOVE ALL DUMMY DATA
+=====================
+
+Find and remove:
+
+* placeholder analytics
+* fake charts
+* hardcoded values
+* mock alerts
+* sample users
+* demo data
+
+Replace with REAL live database-driven functionality.
+
+==================================================
+FAQ SECTION
+===========
+
+Add premium FAQ section with 15+ professionally answered questions.
+
+Categories:
+
+* setup
+* pairing
+* app blocking
+* subscriptions
+* permissions
+* screen time
+* troubleshooting
+* privacy
+* alerts
+
+==================================================
+REVIEWS SECTION
+===============
+
+Improve testimonials:
+
+* Add profile pictures
+* Better cards
+* Better animations
+* Better spacing
+* Auto-scrolling review carousel
+
+==================================================
+CONTACT + SUPPORT
+=================
+
+Display these support emails properly across:
+
+* footer
+* support page
+* contact page
+* help center
+
+Emails:
+[websitemakerdevu@gmail.com](mailto:websitemakerdevu@gmail.com)
+[guardianeye.family@gmail.com](mailto:guardianeye.family@gmail.com)
+
+Also add:
+
+* support form
+* feedback system
+* report issue form
+
+==================================================
+LOGO FIX
+========
+
+There are currently two logos.
+
+Problem:
+
+* Wrong logo appears during login/signup
+* Different logo appears in dashboard
+
+Fix:
+
+* Keep ONLY the dashboard logo everywhere
+* Remove duplicate/unwanted logo completely
+* Use consistent branding across all pages
+
+==================================================
+REALTIME FEATURES
+=================
+
+Add realtime syncing using WebSockets or equivalent:
+
+* instant alerts
+* live device status
+* live screen time updates
+* live restriction updates
+* realtime pairing sync
+
+==================================================
+NOTIFICATIONS
+=============
+
+Add:
+
+* browser push notifications
+* harmful search alerts
+* new app installed alerts
+* device offline alerts
+* daily reports
+* screen time warnings
+
+==================================================
+DATABASE + BACKEND AUDIT
+========================
+
+Audit the ENTIRE backend.
+
+Fix:
+
+* broken APIs
+* inconsistent schemas
+* insecure endpoints
+* duplicate code
+* missing validation
+* failed syncing logic
+* poor database structure
+
+Optimize everything professionally.
+
+==================================================
+ANALYTICS + DASHBOARD
+=====================
+
+Add:
+
+* heatmaps
+* risk score
+* productivity score
+* activity timeline
+* usage trends
+* realtime charts
+* healthy usage insights
+
+==================================================
+PERFORMANCE
+===========
+
+Optimize:
+
+* mobile performance
+* Lighthouse score
+* lazy loading
+* image optimization
+* caching
+* API speed
+* database queries
+
+==================================================
+ACCESSIBILITY
+=============
+
+Improve:
+
+* keyboard navigation
+* screen reader support
+* contrast ratios
+* touch targets
+* responsive interactions
+
+==================================================
+FINAL QA CHECKLIST
+==================
+
+Before finishing:
+
+* test every page
+* test every API
+* test auth flow
+* test QR pairing
+* test realtime syncing
+* test Android responsiveness
+* test installable PWA
+* test free trial expiration
+* test parent PIN system
+* test app blocking logic
+* test website monitoring
+* test AI alerts
+* remove ALL console errors
+* remove ALL placeholder content
+* remove dead code
+* fix ALL broken UI
+
+==================================================
+FINAL OUTPUT REQUIRED
+=====================
+
+After implementation:
+
+1. Give full changelog
+2. Explain all fixes
+3. Explain architecture clearly
+4. Explain Android limitations honestly
+5. Explain future native app migration path
+6. Explain how to test every feature
+7. List remaining limitations honestly
+
+IMPORTANT:
+
+* DO NOT leave features half completed.
+* DO NOT use fake app blocking.
+* DO NOT leave dummy systems.
+* DO NOT use placeholder analytics.
+* Build everything professionally and consistently.

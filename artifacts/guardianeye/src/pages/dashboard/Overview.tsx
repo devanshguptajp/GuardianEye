@@ -12,10 +12,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/contexts/PremiumContext";
 
-const sampleHourly = Array.from({ length: 12 }, (_, i) => ({
+const generateSampleHourly = () => Array.from({ length: 12 }, (_, i) => ({
   hour: `${(i * 2).toString().padStart(2, "0")}:00`,
   minutes: Math.round(20 + Math.sin(i / 1.5) * 18 + Math.random() * 14),
 }));
+
+const sampleHourly = generateSampleHourly();
 
 type FocusModeType = "internet_blocked" | "homework" | "focus";
 

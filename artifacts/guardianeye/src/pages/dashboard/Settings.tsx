@@ -269,7 +269,7 @@ const ParentPinSection = ({ hasPin: initialHasPin }: { hasPin: boolean }) => {
 };
 
 const PremiumSection = () => {
-  const { isPremium, isOnTrial, trialDaysLeft, trialEndsAt, openUpgrade } = usePremium();
+  const { isPremium, isOnTrial, isAdminGranted, trialDaysLeft, trialEndsAt, openUpgrade } = usePremium();
   return (
     <section className="ge-card p-6 space-y-4 relative overflow-hidden">
       <div className="absolute inset-0 ge-aurora opacity-30 pointer-events-none" />
@@ -278,11 +278,20 @@ const PremiumSection = () => {
           <Crown className="h-5 w-5 text-primary" />
           <h2 className="font-display font-semibold">Subscription</h2>
           <span className={`ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${isPremium ? "bg-gradient-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-            {isOnTrial ? "Pro Trial" : isPremium ? "Pro" : "Free"}
+            {isAdminGranted ? "Pro · Lifetime" : isOnTrial ? "Pro Trial" : isPremium ? "Pro" : "Free"}
           </span>
         </div>
 
-        {isOnTrial && (
+        {isAdminGranted && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-accent bg-accent/10 rounded-lg px-3 py-2">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span>
+              <strong>Lifetime Pro access</strong> — all premium features permanently unlocked.
+            </span>
+          </div>
+        )}
+
+        {isOnTrial && !isAdminGranted && (
           <div className="mt-3 flex items-center gap-2 text-sm text-accent bg-accent/10 rounded-lg px-3 py-2">
             <Clock className="h-4 w-4 shrink-0" />
             <span>
@@ -300,25 +309,29 @@ const PremiumSection = () => {
         )}
 
         <p className="text-sm text-muted-foreground mt-2">
-          {isPremium && !isOnTrial
+          {isAdminGranted
+            ? "You have been granted free lifetime Pro access. Enjoy all GuardianEye premium features with no expiry."
+            : isPremium && !isOnTrial
             ? "All Pro features are unlocked. Thank you for supporting GuardianEye!"
             : isOnTrial
             ? "You have full Pro access during your 14-day trial. Upgrade to keep your features after it ends."
             : "Upgrade to Pro for AI moderation, live location, auto-locking, up to 5 children & devices."}
         </p>
 
-        <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-          <div className="ge-card p-3 text-center">
-            <div className="font-bold text-lg">₹499</div>
-            <div className="text-xs text-muted-foreground">for 3 months</div>
+        {!isAdminGranted && (
+          <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+            <div className="ge-card p-3 text-center">
+              <div className="font-bold text-lg">₹499</div>
+              <div className="text-xs text-muted-foreground">for 3 months</div>
+            </div>
+            <div className="ge-card p-3 text-center border-accent/40">
+              <div className="font-bold text-lg">₹1,299</div>
+              <div className="text-xs text-muted-foreground">per year · best value</div>
+            </div>
           </div>
-          <div className="ge-card p-3 text-center border-accent/40">
-            <div className="font-bold text-lg">₹1,299</div>
-            <div className="text-xs text-muted-foreground">per year · best value</div>
-          </div>
-        </div>
+        )}
 
-        {(!isPremium || isOnTrial) && (
+        {!isAdminGranted && (!isPremium || isOnTrial) && (
           <Button className="mt-4 w-full bg-gradient-primary text-primary-foreground shadow-glow" onClick={() => openUpgrade()}>
             <Crown className="h-4 w-4 mr-2" />
             {isOnTrial ? "Upgrade to keep Pro" : "Upgrade to Pro"}

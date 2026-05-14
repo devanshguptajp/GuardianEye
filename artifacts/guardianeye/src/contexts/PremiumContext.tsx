@@ -8,6 +8,7 @@ type Ctx = {
   tier: Tier;
   isPremium: boolean;
   isOnTrial: boolean;
+  isAdminGranted: boolean;
   trialDaysLeft: number;
   trialEndsAt: Date | null;
   upgradeOpen: boolean;
@@ -20,6 +21,7 @@ const PremiumCtx = createContext<Ctx>({
   tier: "basic",
   isPremium: false,
   isOnTrial: false,
+  isAdminGranted: false,
   trialDaysLeft: 0,
   trialEndsAt: null,
   upgradeOpen: false,
@@ -42,7 +44,8 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
-  const tier: Tier = isOnTrial || profile?.subscription_tier === "premium" ? "premium" : "basic";
+  const isAdminGranted = profile?.subscription_tier === "premium" && !isOnTrial;
+  const tier: Tier = isAdminGranted || isOnTrial ? "premium" : "basic";
 
   return (
     <PremiumCtx.Provider
@@ -50,6 +53,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
         tier,
         isPremium: tier === "premium",
         isOnTrial,
+        isAdminGranted,
         trialDaysLeft,
         trialEndsAt,
         upgradeOpen,
